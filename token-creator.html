@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omega Token Creator</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #fff;
+      color: #18181b;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+      padding: 48px 32px 32px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 340px;
+      max-width: 95vw;
+      margin-top: 48px;
+    }
+    .omega-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      text-align: center;
+      color: #18181b;
+      gap: 0.08em;
+    }
+    .omega-symbol {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.1em;
+      line-height: 1;
+      margin-right: 0.04em;
+      display: inline-block;
+      vertical-align: baseline;
+      color: #18181b;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: #52525b;
+      text-align: center;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+    .form {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #18181b;
+    }
+    input, select {
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #f9fafb;
+      color: #18181b;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #18181b;
+    }
+    .advanced-toggle {
+      background: none;
+      border: none;
+      color: #2563eb;
+      font-size: 0.98rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      text-align: left;
+      padding: 0;
+    }
+    .advanced-section {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 8px;
+      background: #f3f4f6;
+      border-radius: 10px;
+      padding: 14px 16px 8px 16px;
+      border: 1px solid #e5e7eb;
+    }
+    .advanced-section.active {
+      display: flex;
+    }
+    .btn-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+    .btn {
+      background: #18181b;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px 0 rgba(24, 24, 27, 0.10);
+    }
+    .btn:disabled {
+      background: #e5e7eb;
+      color: #a1a1aa;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .status-area {
+      margin-top: 18px;
+      min-height: 32px;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .status-success {
+      color: #22c55e;
+      font-weight: 600;
+    }
+    .status-error {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    .status-info {
+      color: #2563eb;
+      font-weight: 500;
+    }
+    .contract-details {
+      margin-top: 24px;
+      padding: 20px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      display: none;
+    }
+    .contract-details.active {
+      display: block;
+    }
+    .contract-details h3 {
+      margin: 0 0 16px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #18181b;
+    }
+    .contract-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .contract-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .contract-info-item:last-child {
+      border-bottom: none;
+    }
+    .contract-info-label {
+      font-weight: 500;
+      color: #52525b;
+      font-size: 0.95rem;
+    }
+    .contract-info-value {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #18181b;
+      word-break: break-all;
+    }
+    .contract-links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .contract-link {
+      background: #18181b;
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .contract-link:hover {
+      background: #374151;
+    }
+    .contract-code {
+      margin-top: 16px;
+      padding: 16px;
+      background: #1e293b;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .footer {
+      margin-top: 48px;
+      font-size: 0.95rem;
+      color: #a1a1aa;
+      text-align: center;
+      line-height: 1.6;
+    }
+    @media (max-width: 600px) {
+      .container {
+        min-width: unset;
+        width: 100vw;
+        border-radius: 0;
+        padding: 24px 4vw 16px 4vw;
+      }
+      .form {
+        max-width: 98vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="omega-title"><span class="omega-symbol">Ω</span>mega Token Creator</h1>
+    <div class="subtitle">Deploy your own Omega-20 token in seconds. No coding required.</div>
+    <form class="form" id="tokenForm" autocomplete="off">
+      <div class="form-group">
+        <label for="name">Token Name</label>
+        <input type="text" id="name" name="name" required maxlength="32" placeholder="e.g. Omega Token">
+      </div>
+      <div class="form-group">
+        <label for="symbol">Symbol</label>
+        <input type="text" id="symbol" name="symbol" required maxlength="8" placeholder="e.g. OMG">
+      </div>
+      <div class="form-group">
+        <label for="decimals">Decimals</label>
+        <input type="number" id="decimals" name="decimals" required min="0" max="18" value="18">
+      </div>
+      <div class="form-group">
+        <label for="supply">Total Supply</label>
+        <input type="number" id="supply" name="supply" required min="1" step="1" placeholder="e.g. 1000000">
+      </div>
+      <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Options</button>
+      <div class="advanced-section" id="advancedSection">
+        <div class="form-group">
+          <label for="mintable"><input type="checkbox" id="mintable" name="mintable"> Mintable (allow future minting)</label>
+        </div>
+        <div class="form-group">
+          <label for="burnable"><input type="checkbox" id="burnable" name="burnable"> Burnable (allow tokens to be destroyed)</label>
+        </div>
+        <div class="form-group">
+          <label for="pausable"><input type="checkbox" id="pausable" name="pausable"> Pausable (allow pausing transfers)</label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn" id="connectBtn">Connect Wallet</button>
+        <button type="submit" class="btn" id="deployBtn" disabled>Deploy Token</button>
+      </div>
+    </form>
+    <div class="status-area" id="statusArea"></div>
+    <div class="contract-details" id="contractDetails">
+      <h3>Contract Details</h3>
+      <div class="contract-info">
+        <div class="contract-info-item">
+          <span class="contract-info-label">Contract Address:</span>
+          <span class="contract-info-value" id="contractAddress"></span>
+        </div>
+        <div class="contract-info-item">
+          <span class="contract-info-label">Verification Link:</span>
+          <span class="contract-info-value" id="verificationLink"></span>
+        </div>
+      </div>
+      <div class="contract-links">
+        <a href="#" class="contract-link" id="verifyLink">Verify Contract</a>
+        <button class="contract-link" id="copyCodeBtn" type="button">Copy Code</button>
+      </div>
+      <div style="margin-top:12px; color:#2563eb; font-weight:500;">Copy and use the code below for contract verification on the block explorer.</div>
+      <div class="contract-code" id="contractCode"></div>
+    </div>
+  </div>
+  <div class="footer">
+    Powered by Omega Network &bull; Token Creator<br>
+    <span style="font-size:0.9em;opacity:0.8;">Connect your wallet and deploy your own Omega-20 token instantly.</span>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script>
+    let provider, signer, userAddress;
+    const connectBtn = document.getElementById('connectBtn');
+    const deployBtn = document.getElementById('deployBtn');
+    const statusArea = document.getElementById('statusArea');
+    const tokenForm = document.getElementById('tokenForm');
+    const toggleAdvanced = document.getElementById('toggleAdvanced');
+    const advancedSection = document.getElementById('advancedSection');
+
+    // --- OmegaTokenFactory Contract Info ---
+    const FACTORY_ADDRESS = "0x1f568dbb3a7b9ea05062b132094a848ef1443cfe";
+    const FACTORY_ABI = [
+      {
+        "inputs": [
+          { "internalType": "string", "name": "name_", "type": "string" },
+          { "internalType": "string", "name": "symbol_", "type": "string" },
+          { "internalType": "uint8", "name": "decimals_", "type": "uint8" },
+          { "internalType": "uint256", "name": "initialSupply_", "type": "uint256" },
+          { "internalType": "bool", "name": "mintable_", "type": "bool" },
+          { "internalType": "bool", "name": "pausable_", "type": "bool" }
+        ],
+        "name": "createToken",
+        "outputs": [ { "internalType": "address", "name": "", "type": "address" } ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          { "indexed": true, "internalType": "address", "name": "creator", "type": "address" },
+          { "indexed": false, "internalType": "address", "name": "token", "type": "address" },
+          { "indexed": false, "internalType": "string", "name": "name", "type": "string" },
+          { "indexed": false, "internalType": "string", "name": "symbol", "type": "string" }
+        ],
+        "name": "TokenCreated",
+        "type": "event"
+      },
+      {
+        "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+        "name": "allTokens",
+        "outputs": [ { "internalType": "address", "name": "", "type": "address" } ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getAllTokens",
+        "outputs": [ { "internalType": "address[]", "name": "", "type": "address[]" } ],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
+
+    // --- Advanced Options Toggle ---
+    toggleAdvanced.onclick = function(e) {
+      e.preventDefault();
+      advancedSection.classList.toggle('active');
+      toggleAdvanced.textContent = advancedSection.classList.contains('active') ? 'Hide Advanced Options' : 'Show Advanced Options';
+    };
+
+    // --- Wallet Connect ---
+    connectBtn.onclick = async function() {
+      if (window.ethereum) {
+        try {
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          await provider.send('eth_requestAccounts', []);
+          signer = provider.getSigner();
+          userAddress = await signer.getAddress();
+          connectBtn.textContent = 'Wallet Connected';
+          connectBtn.disabled = true;
+          deployBtn.disabled = false;
+          statusArea.textContent = '';
+        } catch (e) {
+          statusArea.textContent = 'Wallet connection rejected.';
+          statusArea.className = 'status-area status-error';
+        }
+      } else {
+        statusArea.textContent = 'MetaMask or compatible wallet not found.';
+        statusArea.className = 'status-area status-error';
+      }
+    };
+
+    // --- Token Deployment (via Factory) ---
+    tokenForm.onsubmit = async function(e) {
+      e.preventDefault();
+      if (!signer) {
+        statusArea.textContent = 'Please connect your wallet first.';
+        statusArea.className = 'status-area status-error';
+        return;
+      }
+      // Get form values
+      const name = tokenForm.name.value.trim();
+      const symbol = tokenForm.symbol.value.trim();
+      const decimals = parseInt(tokenForm.decimals.value);
+      const supply = tokenForm.supply.value.trim();
+      const mintable = tokenForm.mintable.checked;
+      // burnable is always enabled in the contract, so we ignore the checkbox
+      const pausable = tokenForm.pausable.checked;
+      // Basic validation
+      if (!name || !symbol || isNaN(decimals) || !supply) {
+        statusArea.textContent = 'Please fill in all required fields.';
+        statusArea.className = 'status-area status-error';
+        return;
+      }
+      statusArea.textContent = 'Deploying token... Please confirm the transaction in your wallet.';
+      statusArea.className = 'status-area status-info';
+      deployBtn.disabled = true;
+      try {
+        const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
+        // initialSupply should be in whole tokens, not multiplied by decimals
+        // The contract will handle the decimal conversion internally
+        const supplyInWholeTokens = ethers.BigNumber.from(supply);
+        const tx = await factory.createToken(name, symbol, decimals, supplyInWholeTokens, mintable, pausable);
+        statusArea.textContent = 'Waiting for transaction confirmation...';
+        const receipt = await tx.wait();
+        // Find the TokenCreated event
+        let tokenAddress = null;
+        for (const log of receipt.logs) {
+          try {
+            const parsed = factory.interface.parseLog(log);
+            if (parsed.name === 'TokenCreated') {
+              tokenAddress = parsed.args.token;
+              break;
+            }
+          } catch (err) { /* not this log */ }
+        }
+        if (tokenAddress) {
+          statusArea.innerHTML = `<span class='status-success'>Token deployed!</span><br>Address: <a href='https://0x4e454228.explorer.aurora-cloud.dev/address/${tokenAddress}' target='_blank'>${tokenAddress}</a>`;
+          document.getElementById('contractAddress').textContent = tokenAddress;
+          document.getElementById('verificationLink').textContent = `https://0x4e454228.explorer.aurora-cloud.dev/address/${tokenAddress}`;
+          document.getElementById('verifyLink').href = `https://0x4e454228.explorer.aurora-cloud.dev/address/${tokenAddress}`;
+          document.getElementById('contractDetails').classList.add('active');
+          // Show Solidity source code for verification
+          document.getElementById('contractCode').textContent = OMEGA_ERC20_SOURCE;
+        } else {
+          statusArea.innerHTML = `<span class='status-success'>Token deployed! (Address not found in logs)</span>`;
+        }
+      } catch (err) {
+        statusArea.textContent = 'Deployment failed: ' + (err.message || err);
+        statusArea.className = 'status-area status-error';
+      }
+      deployBtn.disabled = false;
+    };
+
+    // --- Copy code button logic
+    document.getElementById('copyCodeBtn').onclick = function() {
+      const code = document.getElementById('contractCode').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        document.getElementById('copyCodeBtn').textContent = 'Copied!';
+        setTimeout(() => {
+          document.getElementById('copyCodeBtn').textContent = 'Copy Code';
+        }, 1500);
+      });
+    };
+
+    // --- OmegaERC20 Solidity source code for verification
+    const OMEGA_ERC20_SOURCE = `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract OmegaERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable {
+    uint8 private _customDecimals;
+    bool public mintable;
+    bool public pausable;
+
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_,
+        uint256 initialSupply_,
+        address owner_,
+        bool mintable_,
+        bool pausable_
+    ) ERC20(name_, symbol_) Ownable(owner_) {
+        _customDecimals = decimals_;
+        mintable = mintable_;
+        pausable = pausable_;
+        _mint(owner_, initialSupply_ * (10 ** uint256(decimals_)));
+    }
+
+    function decimals() public view override returns (uint8) {
+        return _customDecimals;
+    }
+
+    function mint(address to, uint256 amount) public onlyOwner {
+        require(mintable, "Minting is disabled");
+        _mint(to, amount);
+    }
+
+    function pause() public onlyOwner {
+        require(pausable, "Pausing is disabled");
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        require(pausable, "Pausing is disabled");
+        _unpause();
+    }
+
+    function _beforeTokenTransfer(address from, address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Pausable)
+    {
+        super._beforeTokenTransfer(from, to, amount);
+    }
+}
+`;
+  </script>
+</body>
+</html> 
