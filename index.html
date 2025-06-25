@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Omega DeFi Hub</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #fff;
+      color: #18181b;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .defi-container {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+      padding: 48px 40px 40px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 400px;
+      max-width: 95vw;
+    }
+    .defi-image {
+      width: 120px;
+      margin-bottom: 32px;
+      opacity: 0.8;
+    }
+    .omega-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      font-size: 3.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      text-align: center;
+      color: #18181b;
+      gap: 0.08em;
+    }
+    .omega-symbol {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.1em;
+      line-height: 1;
+      margin-right: 0.04em;
+      display: inline-block;
+      vertical-align: baseline;
+      color: #18181b;
+    }
+    .omega-text {
+      display: inline-block;
+      vertical-align: baseline;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: #52525b;
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+    .wallet-section {
+      width: 100%;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .wallet-btn, .enter-btn {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.10);
+    }
+    .wallet-btn:hover, .enter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px 0 rgba(37, 99, 235, 0.18);
+    }
+    .wallet-btn:disabled, .enter-btn:disabled {
+      background: #e5e7eb;
+      color: #a1a1aa;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .wallet-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0 0 0 20px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06);
+      z-index: 1000;
+      min-width: 240px;
+    }
+    .wallet-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .wallet-status {
+      font-size: 0.9rem;
+      color: #52525b;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .wallet-address {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    }
+    .wallet-action-btn {
+      background: #f1f5f9;
+      color: #2563eb;
+      border: 1px solid #e0e7ef;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .wallet-action-btn:hover {
+      background: #e0e7ef;
+      border-color: #2563eb;
+    }
+    .defi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+      width: 100%;
+      max-width: 1200px;
+      justify-items: center;
+    }
+    .defi-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 320px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.03);
+    }
+    .defi-card:hover {
+      transform: translateY(-8px);
+      border-color: #2563eb;
+      box-shadow: 0 8px 32px 0 rgba(37, 99, 235, 0.08);
+    }
+    .defi-card.operational {
+      border-color: #22c55e33;
+    }
+    .defi-card.operational:hover {
+      border-color: #22c55e;
+    }
+    .defi-card.coming-soon {
+      opacity: 0.7;
+    }
+    .defi-card.coming-soon:hover {
+      transform: none;
+      border-color: #e5e7eb;
+      box-shadow: none;
+    }
+    .card-icon {
+      width: 64px;
+      height: 64px;
+      background: #e0e7ef;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #2563eb;
+      font-weight: 600;
+    }
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #18181b;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .card-description {
+      font-size: 0.95rem;
+      color: #52525b;
+      text-align: center;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .card-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+    .status-operational {
+      color: #22c55e;
+    }
+    .status-pending {
+      color: #f59e0b;
+    }
+    .status-pending .status-indicator {
+      background: #f59e0b;
+    }
+    .launch-btn {
+      background: #18181b;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px 0 rgba(24, 24, 27, 0.10);
+      width: 100%;
+    }
+    .launch-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px 0 rgba(24, 24, 27, 0.18);
+    }
+    .launch-btn:disabled {
+      background: #e5e7eb;
+      color: #a1a1aa;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .footer {
+      margin-top: 48px;
+      font-size: 0.95rem;
+      color: #a1a1aa;
+      text-align: center;
+      line-height: 1.6;
+    }
+    @media (max-width: 900px) {
+      .defi-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      }
+      .defi-card {
+        max-width: 100%;
+        min-height: 240px;
+      }
+    }
+    @media (max-width: 700px) {
+      .wallet-panel {
+        top: 0;
+        right: 0;
+        left: 0;
+        width: 100vw;
+        min-width: unset;
+        border-radius: 0 0 20px 20px;
+        justify-content: center;
+        padding: 12px 4vw;
+        box-sizing: border-box;
+      }
+      .wallet-info {
+        margin-right: 12px;
+      }
+      .wallet-action-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+    }
+    @media (max-width: 500px) {
+      .defi-container {
+        margin-top: 60px;
+        padding: 24px 16px;
+        min-width: unset;
+        width: 100vw;
+        border-radius: 0;
+      }
+      .defi-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 32px;
+        width: 100vw;
+        max-width: 100vw;
+        padding: 0 4vw;
+        box-sizing: border-box;
+      }
+      .defi-card {
+        min-height: 200px;
+        padding: 24px 20px;
+      }
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+        margin-bottom: 16px;
+      }
+      .card-title {
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+      }
+      .card-description {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+      }
+      .omega-title {
+        font-size: 2.5rem;
+      }
+      .subtitle {
+        font-size: 1rem;
+        margin-bottom: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wallet-panel">
+    <div class="wallet-info">
+      <span class="wallet-status" id="walletStatus">Wallet Not Connected</span>
+      <span class="wallet-address" id="walletAddress" style="display:none;"></span>
+    </div>
+    <button class="wallet-action-btn" id="walletBtn">Connect Wallet</button>
+    <button class="wallet-action-btn" id="disconnectBtn" style="display:none;">Disconnect</button>
+  </div>
+  <div class="defi-container">
+    <img src="insert-defi.png" alt="Omega DeFi" class="defi-image" onerror="this.style.display='none'">
+    <h1 class="omega-title">
+      <span class="omega-symbol">Ω</span><span class="omega-text">mega DeFi</span>
+    </h1>
+    <p class="subtitle">Decentralized Finance Tools & Protocols</p>
+    <div class="defi-grid">
+      <div class="defi-card operational" data-game="token-creator">
+        <div class="card-icon">🪙</div>
+        <div class="card-title">Token Creator</div>
+        <div class="card-description">Create and deploy your own ERC-20 tokens with custom parameters and features</div>
+        <div class="card-status status-operational">
+          <div class="status-indicator"></div>
+          <span>OPERATIONAL</span>
+        </div>
+        <button class="launch-btn" data-url="token-creator.html">Launch Creator</button>
+      </div>
+      <div class="defi-card operational" data-game="staking">
+        <div class="card-icon">🔒</div>
+        <div class="card-title">Staking Platform</div>
+        <div class="card-description">Stake your tokens to earn rewards and participate in network security</div>
+        <div class="card-status status-operational">
+          <div class="status-indicator"></div>
+          <span>OPERATIONAL</span>
+        </div>
+        <button class="launch-btn" data-url="staking.html">Launch Staking</button>
+      </div>
+      <div class="defi-card coming-soon" data-game="swap">
+        <div class="card-icon">🔄</div>
+        <div class="card-title">Token Swap</div>
+        <div class="card-description">Trade tokens instantly with low fees and high liquidity pools</div>
+        <div class="card-status status-pending">
+          <div class="status-indicator"></div>
+          <span>COMING SOON</span>
+        </div>
+        <button class="launch-btn" data-url="swap.html" disabled>Coming Soon</button>
+      </div>
+      <div class="defi-card coming-soon" data-game="liquidity">
+        <div class="card-icon">💧</div>
+        <div class="card-title">Liquidity Pool</div>
+        <div class="card-description">Provide liquidity to earn trading fees and LP token rewards</div>
+        <div class="card-status status-pending">
+          <div class="status-indicator"></div>
+          <span>COMING SOON</span>
+        </div>
+        <button class="launch-btn" data-url="liquidity.html" disabled>Coming Soon</button>
+      </div>
+      <div class="defi-card coming-soon" data-game="yield">
+        <div class="card-icon">🌾</div>
+        <div class="card-title">Yield Farming</div>
+        <div class="card-description">Farm additional rewards by providing liquidity and staking LP tokens</div>
+        <div class="card-status status-pending">
+          <div class="status-indicator"></div>
+          <span>COMING SOON</span>
+        </div>
+        <button class="launch-btn" data-url="yield.html" disabled>Coming Soon</button>
+      </div>
+      <div class="defi-card coming-soon" data-game="governance">
+        <div class="card-icon">🗳️</div>
+        <div class="card-title">Governance</div>
+        <div class="card-description">Participate in protocol governance and vote on important proposals</div>
+        <div class="card-status status-pending">
+          <div class="status-indicator"></div>
+          <span>COMING SOON</span>
+        </div>
+        <button class="launch-btn" data-url="governance.html" disabled>Coming Soon</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    Powered by Omega Network &bull; DeFi Hub<br>
+    <span style="font-size:0.9em;opacity:0.8;">Connect your wallet to access DeFi tools and manage your digital assets securely.</span>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script>
+    // --- State ---
+    let userAddress = null;
+    
+    // --- Elements ---
+    const walletBtn = document.getElementById('walletBtn');
+    const walletAddressDiv = document.getElementById('walletAddress');
+    const walletStatus = document.getElementById('walletStatus');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    
+    // --- Load State ---
+    function loadState() {
+      userAddress = localStorage.getItem('omega_defi_wallet') || null;
+      updateUI();
+    }
+    
+    function saveState() {
+      if (userAddress) localStorage.setItem('omega_defi_wallet', userAddress);
+    }
+    
+    function clearState() {
+      userAddress = null;
+      localStorage.removeItem('omega_defi_wallet');
+    }
+    
+    // --- UI Update ---
+    function updateUI() {
+      if (userAddress) {
+        walletStatus.textContent = 'Wallet Connected';
+        walletBtn.style.display = 'none';
+        walletAddressDiv.style.display = 'inline-block';
+        walletAddressDiv.textContent = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
+        disconnectBtn.style.display = 'inline-block';
+      } else {
+        walletStatus.textContent = 'Wallet Not Connected';
+        walletBtn.style.display = 'inline-block';
+        walletAddressDiv.style.display = 'none';
+        disconnectBtn.style.display = 'none';
+      }
+    }
+    
+    // --- Wallet Connect ---
+    walletBtn.onclick = async function() {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          userAddress = accounts[0];
+          saveState();
+          updateUI();
+        } catch (e) {
+          alert('Wallet connection rejected.');
+        }
+      } else {
+        alert('MetaMask or compatible wallet not found.');
+      }
+    };
+    
+    disconnectBtn.onclick = function() {
+      clearState();
+      updateUI();
+    };
+    
+    // --- DeFi Card Click Handlers ---
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('launch-btn')) {
+        const url = e.target.getAttribute('data-url');
+        if (url && !e.target.disabled) {
+          window.open(url, '_blank');
+        }
+      }
+    });
+    
+    // --- Initialize ---
+    loadState();
+    
+    // --- Mobile Detection ---
+    if (window.innerWidth <= 600) {
+      document.body.style.paddingBottom = '60px';
+    }
+  </script>
+</body>
+</html> 
