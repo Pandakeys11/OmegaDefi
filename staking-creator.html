@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staking Pool Creator</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #fff;
+      color: #18181b;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+      padding: 48px 32px 32px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 340px;
+      max-width: 95vw;
+      margin-top: 48px;
+    }
+    .omega-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      text-align: center;
+      color: #18181b;
+      gap: 0.08em;
+    }
+    .omega-symbol {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.1em;
+      line-height: 1;
+      margin-right: 0.04em;
+      display: inline-block;
+      vertical-align: baseline;
+      color: #18181b;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: #52525b;
+      text-align: center;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+    .form {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #18181b;
+    }
+    input, select {
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #f9fafb;
+      color: #18181b;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #2563eb;
+    }
+    .btn-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+    .btn {
+      background: #18181b;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px 0 rgba(24, 24, 27, 0.10);
+    }
+    .btn:disabled {
+      background: #e5e7eb;
+      color: #a1a1aa;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .status-area {
+      margin-top: 18px;
+      min-height: 32px;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .status-success {
+      color: #22c55e;
+      font-weight: 600;
+    }
+    .status-error {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    .status-info {
+      color: #2563eb;
+      font-weight: 500;
+    }
+    .footer {
+      margin-top: 48px;
+      font-size: 0.95rem;
+      color: #a1a1aa;
+      text-align: center;
+      line-height: 1.6;
+    }
+    @media (max-width: 600px) {
+      .container {
+        min-width: unset;
+        width: 100vw;
+        border-radius: 0;
+        padding: 24px 4vw 16px 4vw;
+      }
+      .form {
+        max-width: 98vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="omega-title"><span class="omega-symbol">Ω</span> Staking Pool Creator</h1>
+    <div class="subtitle">Create and deploy your own staking pool. Share your unique pool page with your community!</div>
+    <form class="form" id="stakingForm" autocomplete="off">
+      <div class="form-group">
+        <label for="token">Staked Token Address</label>
+        <input type="text" id="token" name="token" required placeholder="0x...">
+      </div>
+      <div class="form-group">
+        <label for="reward">Reward Percentage (APR)</label>
+        <input type="number" id="reward" name="reward" required min="0" max="100" step="0.01" placeholder="e.g. 12">
+      </div>
+      <div class="form-group">
+        <label for="lockType">Pool Type</label>
+        <select id="lockType" name="lockType">
+          <option value="unlocked">Unlocked (withdraw anytime)</option>
+          <option value="locked">Locked (fixed period)</option>
+        </select>
+      </div>
+      <div class="form-group" id="lockDurationGroup" style="display:none;">
+        <label for="lockDuration">Lock Duration (days)</label>
+        <input type="number" id="lockDuration" name="lockDuration" min="1" max="365" step="1" placeholder="e.g. 30">
+      </div>
+      <div class="form-group">
+        <label for="minStake">Minimum Stake (optional)</label>
+        <input type="number" id="minStake" name="minStake" min="0" step="1" placeholder="e.g. 100">
+      </div>
+      <div class="form-group">
+        <label for="maxStake">Maximum Stake (optional)</label>
+        <input type="number" id="maxStake" name="maxStake" min="0" step="1" placeholder="e.g. 10000">
+      </div>
+      <div class="btn-row" style="justify-content:center;">
+        <button type="button" class="btn" id="connectBtn">Connect Wallet</button>
+        <button type="submit" class="btn" id="deployBtn" disabled>Deploy Pool</button>
+      </div>
+    </form>
+    <div class="status-area" id="statusArea"></div>
+    <div class="status-area" id="poolLinkArea" style="display:none;"></div>
+  </div>
+  <div class="footer">
+    Powered by Omega Network &bull; Staking Pool Creator<br>
+    <span style="font-size:0.9em;opacity:0.8;">Connect your wallet and deploy your own staking pool instantly.</span>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script>
+    let provider, signer, userAddress;
+    const connectBtn = document.getElementById('connectBtn');
+    const deployBtn = document.getElementById('deployBtn');
+    const statusArea = document.getElementById('statusArea');
+    const stakingForm = document.getElementById('stakingForm');
+
+    // --- OmegaStakingPoolFactory Contract Info ---
+    const FACTORY_ADDRESS = '0x4658a6412e21b741c47ba98da5105d0ccd574c0f';
+    const FACTORY_ABI = [
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "stakingToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rewardAPR",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isLocked",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lockDuration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minStake",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxStake",
+            "type": "uint256"
+          }
+        ],
+        "name": "createPool",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          }
+        ],
+        "name": "PoolCreated",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "name": "allPools",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getAllPools",
+        "outputs": [
+          {
+            "internalType": "address[]",
+            "name": "",
+            "type": "address[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
+
+    // Connect wallet
+    connectBtn.addEventListener('click', async () => {
+      try {
+        if (typeof window.ethereum === 'undefined') {
+          statusArea.textContent = 'Please install MetaMask or another wallet extension.';
+          return;
+        }
+
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send('eth_requestAccounts', []);
+        signer = provider.getSigner();
+        userAddress = await signer.getAddress();
+
+        connectBtn.textContent = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+        connectBtn.disabled = true;
+        deployBtn.disabled = false;
+        statusArea.textContent = 'Wallet connected! Ready to deploy staking pool.';
+      } catch (error) {
+        statusArea.textContent = `Connection error: ${error.message}`;
+      }
+    });
+
+    // Deploy staking pool
+    stakingForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!signer) {
+        statusArea.textContent = 'Please connect your wallet first.';
+        return;
+      }
+
+      const formData = new FormData(stakingForm);
+      const tokenAddressRaw = formData.get('token');
+      if (!tokenAddressRaw) {
+        statusArea.textContent = 'Please enter a token contract address.';
+        return;
+      }
+      const trimmedAddress = tokenAddressRaw.trim();
+      try {
+        ethers.utils.getAddress(trimmedAddress);
+      } catch (e) {
+        statusArea.textContent = `Invalid token address: "${trimmedAddress}"`;
+        return;
+      }
+
+      const rewardAPR = formData.get('reward');
+      const lockType = formData.get('lockType');
+      const lockDuration = formData.get('lockDuration');
+      const minStake = formData.get('minStake');
+      const maxStake = formData.get('maxStake');
+
+      if (!rewardAPR || rewardAPR <= 0) {
+        statusArea.textContent = 'Please enter a valid reward percentage.';
+        return;
+      }
+
+      deployBtn.disabled = true;
+      statusArea.textContent = 'Deploying staking pool...';
+
+      try {
+        const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
+        
+        // Convert inputs to proper types
+        const isLocked = lockType === 'locked';
+        const lockDurationSeconds = isLocked ? parseInt(lockDuration) * 86400 : 0; // Convert days to seconds
+        const minStakeWei = ethers.utils.parseEther(minStake || '0');
+        const maxStakeWei = ethers.utils.parseEther(maxStake || '0');
+
+        const tx = await factory.createPool(
+          trimmedAddress,
+          rewardAPR,
+          isLocked,
+          lockDurationSeconds,
+          minStakeWei,
+          maxStakeWei
+        );
+
+        statusArea.textContent = 'Waiting for transaction confirmation...';
+        const receipt = await tx.wait();
+
+        // Find the PoolCreated event
+        let poolAddress = null;
+        for (const log of receipt.logs) {
+          try {
+            const parsed = factory.interface.parseLog(log);
+            if (parsed.name === 'PoolCreated') {
+              poolAddress = parsed.args.pool;
+              break;
+            }
+          } catch (err) { /* not this log */ }
+        }
+
+        if (poolAddress) {
+          const poolUrl = `${window.location.origin}/staking-pool.html?address=${poolAddress}`;
+          statusArea.innerHTML = `
+            <span class='status-success'>Staking pool deployed successfully!</span><br><br>
+            <strong>Pool Address:</strong> <a href='https://0x4e454228.explorer.aurora-cloud.dev/address/${poolAddress}' target='_blank'>${poolAddress}</a><br><br>
+            <strong>Shareable Pool URL:</strong><br>
+            <div style='background:#f1f5f9; padding:12px; border-radius:8px; margin:8px 0; word-break:break-all;'>
+              <a href='${poolUrl}' target='_blank'>${poolUrl}</a>
+            </div>
+            <button onclick='navigator.clipboard.writeText("${poolUrl}")' style='margin-top:8px; padding:8px 16px; background:#2563eb; color:white; border:none; border-radius:6px; cursor:pointer;'>
+              Copy Pool URL
+            </button>
+          `;
+        } else {
+          statusArea.innerHTML = `<span class='status-success'>Staking pool deployed! Check your wallet for the pool address.</span>`;
+        }
+      } catch (error) {
+        statusArea.textContent = `Deployment error: ${error.message}`;
+      } finally {
+        deployBtn.disabled = false;
+      }
+    });
+
+    // Toggle lock duration field
+    document.getElementById('lockType').addEventListener('change', function() {
+      const lockDurationField = document.getElementById('lockDuration');
+      if (this.value === 'locked') {
+        lockDurationField.style.display = 'block';
+        lockDurationField.required = true;
+      } else {
+        lockDurationField.style.display = 'none';
+        lockDurationField.required = false;
+      }
+    });
+  </script>
+</body>
+</html> 
