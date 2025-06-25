@@ -281,7 +281,9 @@
   <script>
     let provider, signer, userAddress;
     let poolAddress, poolContract, tokenContract;
-    
+    let contractsLoaded = false;
+    let tokenDecimals = 18;
+
     // Contract ABIs
     const POOL_ABI = [
       "function stakedToken() view returns (address)",
@@ -298,7 +300,6 @@
       "function claimRewards()",
       "function owner() view returns (address)"
     ];
-
     const TOKEN_ABI = [
       "function name() view returns (string)",
       "function symbol() view returns (string)",
@@ -312,29 +313,28 @@
     const urlParams = new URLSearchParams(window.location.search);
     poolAddress = urlParams.get('address');
 
+    const connectBtn = document.getElementById('connectBtn');
+    connectBtn.disabled = true;
+
     if (!poolAddress) {
       document.getElementById('statusArea').innerHTML = '<span class="status-error">No pool address provided. Please use a valid staking pool URL.</span>';
       document.getElementById('poolInfo').style.display = 'none';
       document.getElementById('stakingForm').style.display = 'none';
     } else {
-      // Display pool address
       document.getElementById('poolAddress').textContent = `${poolAddress.slice(0, 6)}...${poolAddress.slice(-4)}`;
       document.getElementById('poolAddress').title = poolAddress;
-      
-      // Load pool data
       loadPoolData();
     }
 
     async function loadPoolData() {
       try {
+        document.getElementById('statusArea').innerHTML = '<span class="loading"></span> Loading pool data...';
         if (typeof window.ethereum === 'undefined') {
           document.getElementById('statusArea').textContent = 'Please install MetaMask or another wallet extension.';
           return;
         }
-
         provider = new ethers.providers.Web3Provider(window.ethereum);
         poolContract = new ethers.Contract(poolAddress, POOL_ABI, provider);
-
         // Load pool information
         const [stakedTokenAddr, rewardAPR, isLocked, lockDuration, minStake, maxStake, totalStaked] = await Promise.all([
           poolContract.stakedToken(),
@@ -345,15 +345,13 @@
           poolContract.maxStake(),
           poolContract.totalStaked()
         ]);
-
-        // Load token information
         tokenContract = new ethers.Contract(stakedTokenAddr, TOKEN_ABI, provider);
-        const [tokenName, tokenSymbol, tokenDecimals] = await Promise.all([
+        const [tokenName, tokenSymbol, decimals] = await Promise.all([
           tokenContract.name(),
           tokenContract.symbol(),
           tokenContract.decimals()
         ]);
-
+        tokenDecimals = decimals;
         // Update UI
         document.getElementById('stakedToken').textContent = `${tokenName} (${tokenSymbol})`;
         document.getElementById('rewardAPR').textContent = `${ethers.utils.formatUnits(rewardAPR, 2)}%`;
@@ -361,179 +359,141 @@
         document.getElementById('minStake').textContent = ethers.utils.formatUnits(minStake, tokenDecimals);
         document.getElementById('maxStake').textContent = ethers.utils.formatUnits(maxStake, tokenDecimals);
         document.getElementById('totalStaked').textContent = ethers.utils.formatUnits(totalStaked, tokenDecimals);
-
         if (isLocked) {
           document.getElementById('lockDurationRow').style.display = 'flex';
           const lockDays = Math.floor(lockDuration / 86400);
           document.getElementById('lockDuration').textContent = `${lockDays} days`;
         }
-
-        // If wallet is connected, load user data
-        if (userAddress) {
-          loadUserData();
-        }
-
+        contractsLoaded = true;
+        connectBtn.disabled = false;
+        document.getElementById('statusArea').textContent = '';
       } catch (error) {
-        document.getElementById('statusArea').textContent = `Error loading pool data: ${error.message}`;
+        document.getElementById('statusArea').innerHTML = `<span class='status-error'>Error loading pool data: ${error.message}</span>`;
+        connectBtn.disabled = true;
       }
     }
 
     async function loadUserData() {
       try {
+        if (!poolContract || !tokenContract || !userAddress) return;
         const [userStake, pendingRewards, tokenBalance] = await Promise.all([
           poolContract.stakedBalance(userAddress),
           poolContract.pendingRewards(userAddress),
           tokenContract.balanceOf(userAddress)
         ]);
-
-        const tokenDecimals = await tokenContract.decimals();
-        
         document.getElementById('userStake').textContent = ethers.utils.formatUnits(userStake, tokenDecimals);
         document.getElementById('availableRewards').textContent = ethers.utils.formatUnits(pendingRewards, tokenDecimals);
-        
-        // Enable/disable buttons based on balances
         const hasStake = userStake.gt(0);
         const hasRewards = pendingRewards.gt(0);
         const hasBalance = tokenBalance.gt(0);
-        
         document.getElementById('unstakeBtn').disabled = !hasStake;
         document.getElementById('claimBtn').disabled = !hasRewards;
         document.getElementById('stakeBtn').disabled = !hasBalance;
-        
       } catch (error) {
-        console.error('Error loading user data:', error);
+        document.getElementById('statusArea').innerHTML = `<span class='status-error'>Error loading user data: ${error.message}</span>`;
       }
     }
 
-    // Connect wallet
-    document.getElementById('connectBtn').addEventListener('click', async () => {
+    connectBtn.addEventListener('click', async () => {
+      if (!contractsLoaded || !poolContract || !tokenContract) {
+        document.getElementById('statusArea').innerHTML = '<span class="status-error">Contracts not loaded yet. Please wait.</span>';
+        return;
+      }
       try {
         if (typeof window.ethereum === 'undefined') {
           document.getElementById('statusArea').textContent = 'Please install MetaMask or another wallet extension.';
           return;
         }
-
         provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send('eth_requestAccounts', []);
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
-
         // Update contracts with signer
-        poolContract = poolContract.connect(signer);
-        tokenContract = tokenContract.connect(signer);
-
-        document.getElementById('connectBtn').textContent = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
-        document.getElementById('connectBtn').disabled = true;
-        
-        // Load user data
+        if (poolContract && poolContract.connect) poolContract = poolContract.connect(signer);
+        if (tokenContract && tokenContract.connect) tokenContract = tokenContract.connect(signer);
+        connectBtn.textContent = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+        connectBtn.disabled = true;
         await loadUserData();
-        
         document.getElementById('statusArea').textContent = 'Wallet connected! You can now stake, unstake, and claim rewards.';
       } catch (error) {
-        document.getElementById('statusArea').textContent = `Connection error: ${error.message}`;
+        document.getElementById('statusArea').innerHTML = `<span class='status-error'>Connection error: ${error.message}</span>`;
       }
     });
 
-    // Stake tokens
     document.getElementById('stakingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!signer) {
         document.getElementById('statusArea').textContent = 'Please connect your wallet first.';
         return;
       }
-
       const amount = document.getElementById('stakeAmount').value;
       if (!amount || amount <= 0) {
         document.getElementById('statusArea').textContent = 'Please enter a valid amount to stake.';
         return;
       }
-
       try {
-        const tokenDecimals = await tokenContract.decimals();
         const amountWei = ethers.utils.parseUnits(amount, tokenDecimals);
-        
-        // Check allowance
         const allowance = await tokenContract.allowance(userAddress, poolAddress);
         if (allowance.lt(amountWei)) {
           document.getElementById('statusArea').textContent = 'Approving tokens...';
           const approveTx = await tokenContract.approve(poolAddress, amountWei);
           await approveTx.wait();
         }
-
         document.getElementById('statusArea').textContent = 'Staking tokens...';
         const tx = await poolContract.stake(amountWei);
         await tx.wait();
-
         document.getElementById('statusArea').innerHTML = '<span class="status-success">Tokens staked successfully!</span>';
         document.getElementById('stakeAmount').value = '';
-        
-        // Reload data
         await loadPoolData();
         await loadUserData();
-        
       } catch (error) {
-        document.getElementById('statusArea').textContent = `Staking error: ${error.message}`;
+        document.getElementById('statusArea').innerHTML = `<span class='status-error'>Staking error: ${error.message}</span>`;
       }
     });
 
-    // Unstake tokens
     document.getElementById('unstakeBtn').addEventListener('click', async () => {
       if (!signer) {
         document.getElementById('statusArea').textContent = 'Please connect your wallet first.';
         return;
       }
-
       try {
         const userStake = await poolContract.stakedBalance(userAddress);
         if (userStake.lte(0)) {
           document.getElementById('statusArea').textContent = 'No tokens staked to unstake.';
           return;
         }
-
         document.getElementById('statusArea').textContent = 'Unstaking tokens...';
         const tx = await poolContract.unstake(userStake);
         await tx.wait();
-
         document.getElementById('statusArea').innerHTML = '<span class="status-success">Tokens unstaked successfully!</span>';
-        
-        // Reload data
         await loadPoolData();
         await loadUserData();
-        
       } catch (error) {
-        document.getElementById('statusArea').textContent = `Unstaking error: ${error.message}`;
+        document.getElementById('statusArea').innerHTML = `<span class='status-error'>Unstaking error: ${error.message}</span>`;
       }
     });
 
-    // Claim rewards
     document.getElementById('claimBtn').addEventListener('click', async () => {
       if (!signer) {
         document.getElementById('statusArea').textContent = 'Please connect your wallet first.';
         return;
       }
-
       try {
         const pendingRewards = await poolContract.pendingRewards(userAddress);
         if (pendingRewards.lte(0)) {
           document.getElementById('statusArea').textContent = 'No rewards available to claim.';
           return;
         }
-
         document.getElementById('statusArea').textContent = 'Claiming rewards...';
         const tx = await poolContract.claimRewards();
         await tx.wait();
-
         document.getElementById('statusArea').innerHTML = '<span class="status-success">Rewards claimed successfully!</span>';
-        
-        // Reload data
         await loadUserData();
-        
       } catch (error) {
-        document.getElementById('statusArea').textContent = `Claim error: ${error.message}`;
+        document.getElementById('statusArea').innerHTML = `<span class='status-error'>Claim error: ${error.message}</span>`;
       }
     });
 
-    // Auto-refresh data every 30 seconds
     setInterval(async () => {
       if (userAddress) {
         await loadUserData();
