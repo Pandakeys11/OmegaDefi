@@ -346,6 +346,14 @@
         margin-bottom: 32px;
       }
     }
+    .leaderboard-glow {
+      box-shadow: 0 0 24px 6px rgba(255, 215, 0, 0.45), 0 2px 8px 0 rgba(0,0,0,0.03);
+      border: 1.5px solid #FFD700;
+    }
+    .leaderboard-glow:hover {
+      box-shadow: 0 0 36px 12px rgba(255, 215, 0, 0.65), 0 8px 32px 0 rgba(37, 99, 235, 0.08);
+      border-color: #FFD700;
+    }
   </style>
 </head>
 <body>
@@ -374,15 +382,15 @@
         </div>
         <button class="launch-btn" data-url="token-creator.html">Launch Creator</button>
       </div>
-      <div class="defi-card operational" data-game="staking">
-        <div class="card-icon">🔒</div>
-        <div class="card-title">Create Staking Pool</div>
-        <div class="card-description">Create your own staking pool and let others stake tokens to earn rewards</div>
+      <div class="defi-card leaderboard-glow" data-game="leaderboard">
+        <div class="card-icon">🏆</div>
+        <div class="card-title">Leaderboard</div>
+        <div class="card-description">Submit your activity, might count for something</div>
         <div class="card-status status-operational">
           <div class="status-indicator"></div>
           <span>OPERATIONAL</span>
         </div>
-        <button class="launch-btn" onclick="window.open('https://omegadefi.omeganetwork.co/staking-creator.html', '_blank')">Launch Staking Pool</button>
+        <button class="launch-btn" onclick="window.open('https://omegadefi.omeganetwork.co/activity-tracker.html', '_blank')">View Leaderboard</button>
       </div>
       <div class="defi-card operational" data-game="simple-swap">
         <div class="card-icon">🔄</div>
