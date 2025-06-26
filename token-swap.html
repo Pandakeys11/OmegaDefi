@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omega Swap</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #fff;
+      color: #111;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .header {
+      background: #111;
+      color: #fff;
+      padding: 1.5rem 0 2.5rem 0;
+      text-align: center;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      font-weight: 700;
+      position: relative;
+    }
+    .wallet-btn-top {
+      position: absolute;
+      top: 50%;
+      right: 2.5rem;
+      transform: translateY(-50%);
+      background: #fff;
+      color: #111;
+      border: 2px solid #111;
+      border-radius: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.7rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .wallet-btn-top:hover {
+      background: #111;
+      color: #fff;
+    }
+    .disconnect-btn {
+      background: #fff;
+      color: #111;
+      border: 2px solid #111;
+      border-radius: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.7rem 1.2rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .disconnect-btn:hover {
+      background: #111;
+      color: #fff;
+    }
+    .omega-symbol {
+      font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+      font-size: 5.5rem;
+      font-weight: 900;
+      color: #111;
+      margin: 3.5rem 0 2.5rem 0;
+      text-align: center;
+      letter-spacing: 0.15em;
+      line-height: 1;
+      user-select: none;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .swap-container {
+      max-width: 420px;
+      margin: 1.5rem auto 3rem auto;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+      padding: 2.5rem 2rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .swap-title {
+      text-align: center;
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.04em;
+    }
+    .swap-panel {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      align-items: center;
+    }
+    .token-row {
+      width: 100%;
+      background: #fafbfc;
+      border-radius: 1rem;
+      border: 1.5px solid #111;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.1rem 1.2rem;
+      margin-bottom: 0.2rem;
+      position: relative;
+    }
+    .token-select {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .token-label {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 0.2rem;
+    }
+    .token-input {
+      font-size: 1.2rem;
+      border: none;
+      background: transparent;
+      outline: none;
+      color: #111;
+      font-weight: 500;
+      width: 100%;
+    }
+    .token-dropdown {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      color: #111;
+      border-radius: 0.7rem;
+      padding: 0.4rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 1rem;
+      min-width: 90px;
+    }
+    .swap-arrow {
+      text-align: center;
+      font-size: 2.2rem;
+      color: #111;
+      margin: 0.5rem 0;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 50%;
+      width: 2.2rem;
+      height: 2.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      background: #f0f0f0;
+      border: 1.5px solid #111;
+      transition: background 0.1s, color 0.1s;
+    }
+    .swap-arrow:hover {
+      background: #e3e8ee;
+    }
+    .balance-row {
+      font-size: 0.98rem;
+      color: #555;
+      margin-bottom: 0.2rem;
+      text-align: right;
+      width: 100%;
+    }
+    .swap-btn {
+      width: 100%;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: opacity 0.2s;
+      opacity: 1;
+    }
+    .swap-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    #swap-status {
+      margin-top: 1.2rem;
+      font-size: 1.1rem;
+      text-align: center;
+      min-height: 1.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5em;
+    }
+    .status-success {
+      color: #1ca64c;
+      font-weight: 600;
+    }
+    .status-error {
+      color: #c00;
+      font-weight: 600;
+    }
+    .status-success::before {
+      content: '✅';
+      margin-right: 0.3em;
+    }
+    .status-error::before {
+      content: '❌';
+      margin-right: 0.3em;
+    }
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.95rem;
+      margin: 2.5rem 0 1rem 0;
+    }
+    @media (max-width: 600px) {
+      .swap-container {
+        padding: 1.2rem 0.5rem;
+      }
+      .wallet-btn-top {
+        right: 1rem;
+        top: 50%;
+        padding: 0.6rem 1.1rem;
+        font-size: 0.95rem;
+      }
+      .omega-symbol {
+        font-size: 2.5rem;
+      }
+      .token-row, .swap-btn {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="https://app.auroracloud.dev/dashboard/solar-studios/silos/307/widgets/forwarder.js"></script>
+  <div class="header">
+    Omega Swap
+    <button class="wallet-btn-top">Connect Wallet</button>
+  </div>
+  <div class="omega-symbol">&#937;</div>
+  <div class="swap-container">
+    <!-- Swap UI will be inserted here by JavaScript -->
+  </div>
+  <div class="footer">&copy; 2025 Omega Swap</div>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script>
+  window.addEventListener('DOMContentLoaded', function() {
+    // --- BEGIN: TRADITIONAL SWAP PANEL ---
+    const SWAP_CONTRACT_ADDRESS = "0x2ec4ca76b81bb741b31fe269c72fad14756efc6a";
+    const ARCADE_ADDRESS = "0xFF3fD61427d3485c8e33cb5f5999EAd9639C56a5";
+    const OMEGA_SYMBOL = "OMEGA";
+    const ARCADE_SYMBOL = "ARCADE";
+    const SWAP_ABI = [
+      "function swapOmegaForArcade() payable",
+      "function swapArcadeForOmega(uint256)",
+      "function rateOmegaToArcade() view returns (uint256)",
+      "function rateArcadeToOmega() view returns (uint256)"
+    ];
+    const ERC20_ABI = [
+      "function approve(address,uint256) external returns (bool)",
+      "function allowance(address,address) view returns (uint256)",
+      "function decimals() view returns (uint8)",
+      "function symbol() view returns (string)",
+      "function balanceOf(address) view returns (uint256)"
+    ];
+    let provider, signer, swapContract, arcadeToken;
+    let userAddress = null;
+    let disconnectBtn = null;
+    let swapDirection = 'OMEGA_TO_ARCADE'; // or 'ARCADE_TO_OMEGA'
+    
+    function renderSwapPanel() {
+      document.querySelector('.swap-container').innerHTML = `
+        <div class="swap-title" style="text-align:center;font-size:2.1rem;font-weight:700;margin-bottom:1.5rem;letter-spacing:0.04em;">
+          <strong>Omega</strong>
+        </div>
+        <div class="swap-panel">
+          <div class="balance-row" id="from-balance"></div>
+          <div class="token-row">
+            <div class="token-select">
+              <span class="token-label">From</span>
+              <input class="token-input" id="from-amount" type="number" min="0" placeholder="0.0" />
+            </div>
+            <select class="token-dropdown" id="from-token">
+              <option value="OMEGA">OMEGA</option>
+              <option value="ARCADE">ARCADE</option>
+            </select>
+          </div>
+          <div class="swap-arrow" id="swap-arrow">&#8595;</div>
+          <div class="balance-row" id="to-balance"></div>
+          <div class="token-row">
+            <div class="token-select">
+              <span class="token-label">To</span>
+              <input class="token-input" id="to-amount" type="number" min="0" placeholder="0.0" disabled />
+            </div>
+            <select class="token-dropdown" id="to-token" disabled>
+              <option value="ARCADE">ARCADE</option>
+              <option value="OMEGA">OMEGA</option>
+            </select>
+          </div>
+          <button class="swap-btn" id="swap-btn">Swap</button>
+        </div>
+      `;
+      // Move or create the status div below the swap container
+      let statusDiv = document.getElementById('swap-status');
+      if (!statusDiv) {
+        statusDiv = document.createElement('div');
+        statusDiv.id = 'swap-status';
+        statusDiv.style.margin = '2rem auto 0 auto';
+        statusDiv.style.maxWidth = '420px';
+        statusDiv.style.textAlign = 'center';
+        statusDiv.style.fontSize = '1.1rem';
+        statusDiv.style.display = 'flex';
+        statusDiv.style.alignItems = 'center';
+        statusDiv.style.justifyContent = 'center';
+        statusDiv.style.gap = '0.5em';
+        document.body.insertBefore(statusDiv, document.querySelector('.footer'));
+      }
+      statusDiv.textContent = '';
+      statusDiv.className = '';
+    }
+    renderSwapPanel();
+    
+    // --- Wallet logic ---
+    const walletBtn = document.querySelector('.wallet-btn-top');
+    function shortenAddress(addr) {
+      return addr.slice(0, 6) + '...' + addr.slice(-4);
+    }
+    function updateWalletUI() {
+      if (userAddress) {
+        walletBtn.textContent = shortenAddress(userAddress);
+        if (!disconnectBtn) {
+          disconnectBtn = document.createElement('button');
+          disconnectBtn.className = 'disconnect-btn';
+          disconnectBtn.textContent = 'Disconnect';
+          disconnectBtn.onclick = disconnectWallet;
+        }
+        if (!walletBtn.contains(disconnectBtn)) {
+          walletBtn.appendChild(disconnectBtn);
+        }
+        disconnectBtn.style.display = '';
+      } else {
+        walletBtn.textContent = 'Connect Wallet';
+        if (disconnectBtn) disconnectBtn.style.display = 'none';
+      }
+    }
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts.length > 0) {
+            userAddress = accounts[0];
+            sessionStorage.setItem('omega_wallet_connected', '1');
+            updateWalletUI();
+            initializeSwapContracts();
+            updateBalances();
+          } else {
+            alert('No accounts found in MetaMask. Please unlock your wallet.');
+          }
+        } catch (err) {
+          if (err.code === 4001) {
+            alert('Wallet connection rejected by user.');
+          } else if (err.code === -32002) {
+            alert('Please check MetaMask - connection request is pending.');
+          } else {
+            alert('Wallet connection failed: ' + (err.message || err));
+          }
+        }
+      } else {
+        alert('MetaMask not detected. Please install MetaMask.');
+      }
+    }
+    function disconnectWallet() {
+      userAddress = null;
+      sessionStorage.removeItem('omega_wallet_connected');
+      updateWalletUI();
+      provider = null;
+      signer = null;
+      swapContract = null;
+      arcadeToken = null;
+      updateBalances();
+    }
+    walletBtn.addEventListener('click', function() {
+      if (!userAddress) connectWallet();
+    });
+    (async function() {
+      if (window.ethereum && sessionStorage.getItem('omega_wallet_connected') === '1') {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            userAddress = accounts[0];
+            initializeSwapContracts();
+            updateBalances();
+          } else {
+            userAddress = null;
+          }
+        } catch (err) {
+          userAddress = null;
+        }
+      } else {
+        userAddress = null;
+      }
+      updateWalletUI();
+    })();
+    // --- END Wallet logic ---
+
+    function initializeSwapContracts() {
+      if (window.ethereum) {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        swapContract = new ethers.Contract(SWAP_CONTRACT_ADDRESS, SWAP_ABI, signer);
+        arcadeToken = new ethers.Contract(ARCADE_ADDRESS, ERC20_ABI, signer);
+      }
+    }
+    // --- Swap logic ---
+    let fromToken = OMEGA_SYMBOL;
+    let toToken = ARCADE_SYMBOL;
+    function updateDropdowns() {
+      const fromDropdown = document.getElementById('from-token');
+      const toDropdown = document.getElementById('to-token');
+      if (fromToken === OMEGA_SYMBOL) {
+        fromDropdown.value = OMEGA_SYMBOL;
+        toDropdown.value = ARCADE_SYMBOL;
+      } else {
+        fromDropdown.value = ARCADE_SYMBOL;
+        toDropdown.value = OMEGA_SYMBOL;
+      }
+    }
+    function updateInputStates() {
+      document.getElementById('from-amount').value = '';
+      document.getElementById('to-amount').value = '';
+    }
+    function updateBalances() {
+      const fromBalanceDiv = document.getElementById('from-balance');
+      const toBalanceDiv = document.getElementById('to-balance');
+      if (!userAddress || !provider) {
+        fromBalanceDiv.textContent = '';
+        toBalanceDiv.textContent = '';
+        return;
+      }
+      if (fromToken === OMEGA_SYMBOL) {
+        provider.getBalance(userAddress).then(bal => {
+          fromBalanceDiv.textContent = `Balance: ${ethers.utils.formatEther(bal)}`;
+        });
+        arcadeToken && arcadeToken.balanceOf(userAddress).then(bal => {
+          arcadeToken.decimals().then(dec => {
+            toBalanceDiv.textContent = `Balance: ${ethers.utils.formatUnits(bal, dec)}`;
+          });
+        });
+      } else {
+        arcadeToken && arcadeToken.balanceOf(userAddress).then(bal => {
+          arcadeToken.decimals().then(dec => {
+            fromBalanceDiv.textContent = `Balance: ${ethers.utils.formatUnits(bal, dec)}`;
+          });
+        });
+        provider.getBalance(userAddress).then(bal => {
+          toBalanceDiv.textContent = `Balance: ${ethers.utils.formatEther(bal)}`;
+        });
+      }
+    }
+    function flipDirection() {
+      [fromToken, toToken] = [toToken, fromToken];
+      updateDropdowns();
+      updateInputStates();
+      updateBalances();
+      document.getElementById('swap-status').textContent = '';
+      document.getElementById('swap-status').className = '';
+    }
+    document.addEventListener('change', function(e) {
+      if (e.target.id === 'from-token') {
+        if (e.target.value !== fromToken) flipDirection();
+      }
+    });
+    document.getElementById('swap-arrow').addEventListener('click', flipDirection);
+    // --- Swap button logic ---
+    document.getElementById('swap-btn').onclick = async function() {
+      const statusDiv = document.getElementById('swap-status');
+      statusDiv.textContent = '';
+      statusDiv.className = '';
+      const fromAmount = document.getElementById('from-amount').value;
+      if (!userAddress) {
+        statusDiv.textContent = 'Connect your wallet first.';
+        statusDiv.className = 'status-error';
+        return;
+      }
+      if (!fromAmount || isNaN(fromAmount) || Number(fromAmount) <= 0) {
+        statusDiv.textContent = 'Enter a valid amount.';
+        statusDiv.className = 'status-error';
+        return;
+      }
+      try {
+        if (fromToken === OMEGA_SYMBOL && toToken === ARCADE_SYMBOL) {
+          const tx = await swapContract.swapOmegaForArcade({ value: ethers.utils.parseEther(fromAmount) });
+          statusDiv.textContent = 'Swap successful!';
+          statusDiv.className = 'status-success';
+          await tx.wait();
+        } else if (fromToken === ARCADE_SYMBOL && toToken === OMEGA_SYMBOL) {
+          const decimals = await arcadeToken.decimals();
+          const parsed = ethers.utils.parseUnits(fromAmount, decimals);
+          const allowance = await arcadeToken.allowance(userAddress, SWAP_CONTRACT_ADDRESS);
+          if (allowance.lt(parsed)) {
+            statusDiv.textContent = 'Approving ARCADE...';
+            statusDiv.className = '';
+            const tx = await arcadeToken.approve(SWAP_CONTRACT_ADDRESS, parsed);
+            await tx.wait();
+          }
+          const tx2 = await swapContract.swapArcadeForOmega(parsed);
+          statusDiv.textContent = 'Swap successful!';
+          statusDiv.className = 'status-success';
+          await tx2.wait();
+        }
+        updateBalances();
+        updateInputStates();
+      } catch (err) {
+        statusDiv.textContent = 'Swap failed: ' + (err.reason || err.message || err);
+        statusDiv.className = 'status-error';
+      }
+    };
+    // --- Update balances on wallet and chain changes ---
+    if (window.ethereum) {
+      window.ethereum.on && window.ethereum.on('accountsChanged', () => {
+        initializeSwapContracts();
+        updateBalances();
+      });
+      window.ethereum.on && window.ethereum.on('chainChanged', () => {
+        initializeSwapContracts();
+        updateBalances();
+      });
+    }
+    // --- Initialize contracts and balances on load ---
+    initializeSwapContracts();
+    updateBalances();
+    document.getElementById('from-amount').addEventListener('input', function(e) {
+      document.getElementById('to-amount').value = e.target.value;
+    });
+  });
+  </script>
+</body>
+</html> 
