@@ -173,9 +173,14 @@
       <button class="toggle-btn" id="private-key-toggle">Private Key</button>
     </div>
 
-    <div class="wallet-info" id="wallet-info">
+    <div class="wallet-info" id="wallet-info" style="display: none;">
       <div id="wallet-status">Not connected</div>
       <button class="airdrop-btn" id="connect-wallet" style="margin-top: 0.5rem;">Connect Wallet</button>
+    </div>
+
+    <div class="private-key-info" id="private-key-info" style="display: none;">
+      <label class="airdrop-label" for="private-key-input">Private Key (without 0x prefix)</label>
+      <input class="airdrop-input" id="private-key-input" type="password" placeholder="Enter your private key..." autocomplete="off" />
     </div>
 
     <div class="balance-info" id="balance-info">
@@ -226,10 +231,7 @@
         return;
       }
       
-      // Auto-connect wallet if MetaMask is available
-      if (typeof window.ethereum !== 'undefined') {
-        connectWallet();
-      }
+      // Don't auto-connect - let user choose method first
     });
 
     // Toggle between wallet connection and private key
@@ -238,6 +240,8 @@
       document.getElementById('wallet-toggle').classList.add('active');
       document.getElementById('private-key-toggle').classList.remove('active');
       document.getElementById('wallet-info').style.display = 'block';
+      document.getElementById('private-key-info').style.display = 'none';
+      document.getElementById('balance-info').classList.remove('show');
       updateAirdropButton();
     };
 
@@ -246,6 +250,7 @@
       document.getElementById('private-key-toggle').classList.add('active');
       document.getElementById('wallet-toggle').classList.remove('active');
       document.getElementById('wallet-info').style.display = 'none';
+      document.getElementById('private-key-info').style.display = 'block';
       document.getElementById('balance-info').classList.remove('show');
       updateAirdropButton();
     };
@@ -314,6 +319,8 @@
         if (connectionMethod === 'wallet' && provider) {
           contractProvider = provider;
         } else if (connectionMethod === 'private-key') {
+          const privateKey = document.getElementById('private-key-input').value.trim();
+          if (!privateKey) return; // Don't check balance if no private key entered
           contractProvider = new ethers.providers.JsonRpcProvider('https://rpc.aurora.dev');
         } else {
           return;
@@ -327,6 +334,14 @@
           const balance = await tokenContract.balanceOf(walletAddress);
           const balanceFormatted = ethers.utils.formatUnits(balance, tokenDecimals);
           document.getElementById('token-balance').textContent = `Token Balance: ${balanceFormatted} ${tokenSymbol}`;
+        } else if (connectionMethod === 'private-key') {
+          const privateKey = document.getElementById('private-key-input').value.trim();
+          if (privateKey) {
+            const wallet = new ethers.Wallet(privateKey, contractProvider);
+            const balance = await tokenContract.balanceOf(wallet.address);
+            const balanceFormatted = ethers.utils.formatUnits(balance, tokenDecimals);
+            document.getElementById('token-balance').textContent = `Token Balance: ${balanceFormatted} ${tokenSymbol}`;
+          }
         }
         
         document.getElementById('token-symbol').textContent = `Symbol: ${tokenSymbol}`;
@@ -360,7 +375,14 @@
       const isValidToken = isValidAddress(tokenAddress);
       const isValidAmount = amount && !isNaN(amount) && Number(amount) > 0;
       const hasWallets = wallets.length > 0;
-      const isConnected = (connectionMethod === 'wallet' && provider && signer) || connectionMethod === 'private-key';
+      
+      let isConnected = false;
+      if (connectionMethod === 'wallet') {
+        isConnected = provider && signer;
+      } else if (connectionMethod === 'private-key') {
+        const privateKey = document.getElementById('private-key-input').value.trim();
+        isConnected = privateKey.length > 0;
+      }
       
       document.getElementById('airdrop-btn').disabled = !(isValidToken && isValidAmount && hasWallets && isConnected);
     }
@@ -368,6 +390,14 @@
     // Add event listeners for real-time validation
     document.getElementById('airdrop-amount').addEventListener('input', updateAirdropButton);
     document.getElementById('wallets').addEventListener('input', updateAirdropButton);
+    document.getElementById('private-key-input').addEventListener('input', function() {
+      updateAirdropButton();
+      // Check balance when private key is entered
+      const tokenAddress = document.getElementById('token-address').value.trim();
+      if (isValidAddress(tokenAddress) && connectionMethod === 'private-key') {
+        checkTokenBalance(tokenAddress);
+      }
+    });
 
     // Validate Ethereum address
     function isValidAddress(addr) {
@@ -468,7 +498,7 @@
     }
 
     async function executePrivateKeyAirdrop(tokenAddress, amount, wallets, statusDiv, progressBar, progressFill) {
-      const privateKey = prompt('Enter your private key (without 0x prefix):');
+      const privateKey = document.getElementById('private-key-input').value.trim();
       if (!privateKey) {
         statusDiv.textContent = 'Private key required.';
         statusDiv.style.color = '#c00';
