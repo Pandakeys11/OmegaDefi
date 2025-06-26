@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omega Airdrop Tool</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      background: #fff;
+      color: #111;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .airdrop-container {
+      max-width: 480px;
+      margin: 3rem auto 2rem auto;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+      padding: 2.5rem 2rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .airdrop-title {
+      text-align: center;
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.04em;
+    }
+    .connection-toggle {
+      display: flex;
+      background: #f5f5f5;
+      border-radius: 0.8rem;
+      padding: 0.3rem;
+      margin-bottom: 1rem;
+      width: 100%;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border: none;
+      background: transparent;
+      border-radius: 0.6rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active {
+      background: #111;
+      color: #fff;
+    }
+    .airdrop-label {
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+      color: #333;
+    }
+    .airdrop-input, .airdrop-textarea {
+      width: 100%;
+      font-size: 1.1rem;
+      padding: 0.7rem 1rem;
+      border: 1.5px solid #111;
+      border-radius: 0.8rem;
+      margin-bottom: 1.1rem;
+      background: #fafbfc;
+      color: #111;
+      font-family: inherit;
+      resize: none;
+    }
+    .airdrop-textarea {
+      min-height: 90px;
+      max-height: 200px;
+    }
+    .airdrop-btn {
+      width: 100%;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: opacity 0.2s;
+      opacity: 1;
+    }
+    .airdrop-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .airdrop-status {
+      margin-top: 1.2rem;
+      font-size: 1.1rem;
+      text-align: center;
+      min-height: 1.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5em;
+      flex-wrap: wrap;
+    }
+    .airdrop-upload {
+      margin-bottom: 1.1rem;
+      width: 100%;
+    }
+    .wallet-info {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 0.8rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      width: 100%;
+    }
+    .balance-info {
+      background: #f0f8ff;
+      border: 1px solid #b3d9ff;
+      border-radius: 0.8rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      display: none;
+    }
+    .balance-info.show {
+      display: block;
+    }
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.95rem;
+      margin: 2.5rem 0 1rem 0;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #1ca64c;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    @media (max-width: 600px) {
+      .airdrop-container {
+        padding: 1.2rem 0.5rem;
+      }
+      .airdrop-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="airdrop-container">
+    <div class="airdrop-title">Omega Airdrop Tool</div>
+    
+    <div class="connection-toggle">
+      <button class="toggle-btn active" id="wallet-toggle">Wallet Connection</button>
+      <button class="toggle-btn" id="private-key-toggle">Private Key</button>
+    </div>
+
+    <div class="wallet-info" id="wallet-info">
+      <div id="wallet-status">Not connected</div>
+      <button class="airdrop-btn" id="connect-wallet" style="margin-top: 0.5rem;">Connect Wallet</button>
+    </div>
+
+    <div class="balance-info" id="balance-info">
+      <div id="token-balance">Token Balance: Loading...</div>
+      <div id="token-symbol">Symbol: -</div>
+    </div>
+
+    <label class="airdrop-label" for="token-address">ERC-20 Token Contract Address</label>
+    <input class="airdrop-input" id="token-address" type="text" placeholder="0x..." autocomplete="off" />
+
+    <label class="airdrop-label" for="airdrop-amount">Amount per Wallet</label>
+    <input class="airdrop-input" id="airdrop-amount" type="number" min="0" step="0.000001" placeholder="Amount (e.g. 100)" />
+
+    <label class="airdrop-label" for="wallets">Paste Wallet Addresses (one per line or comma-separated)</label>
+    <textarea class="airdrop-textarea" id="wallets" placeholder="0x123...\n0x456...\n... or 0x123...,0x456..." autocomplete="off"></textarea>
+
+    <div class="airdrop-upload">
+      <label class="airdrop-label" for="csv-upload">Or Upload CSV</label>
+      <input type="file" id="csv-upload" accept=".csv,text/csv" />
+    </div>
+
+    <button class="airdrop-btn" id="airdrop-btn" disabled>Start Airdrop</button>
+    <div class="airdrop-status" id="airdrop-status"></div>
+    <div class="progress-bar" id="progress-bar" style="display: none;">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+  <div class="footer">&copy; 2025 Omega DeFi • Airdrop Tool</div>
+  <script>
+    let provider, signer, walletAddress;
+    let connectionMethod = 'wallet';
+    let tokenContract, tokenDecimals, tokenSymbol;
+
+    // ERC-20 ABI for transfer function
+    const ERC20_ABI = [
+      "function transfer(address to, uint256 amount) returns (bool)",
+      "function balanceOf(address account) view returns (uint256)",
+      "function decimals() view returns (uint8)",
+      "function symbol() view returns (string)",
+      "function name() view returns (string)"
+    ];
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if ethers loaded properly
+      if (typeof ethers === 'undefined') {
+        alert('Error: ethers.js library failed to load. Please refresh the page or check your internet connection.');
+        return;
+      }
+      
+      // Auto-connect wallet if MetaMask is available
+      if (typeof window.ethereum !== 'undefined') {
+        connectWallet();
+      }
+    });
+
+    // Toggle between wallet connection and private key
+    document.getElementById('wallet-toggle').onclick = function() {
+      connectionMethod = 'wallet';
+      document.getElementById('wallet-toggle').classList.add('active');
+      document.getElementById('private-key-toggle').classList.remove('active');
+      document.getElementById('wallet-info').style.display = 'block';
+      updateAirdropButton();
+    };
+
+    document.getElementById('private-key-toggle').onclick = function() {
+      connectionMethod = 'private-key';
+      document.getElementById('private-key-toggle').classList.add('active');
+      document.getElementById('wallet-toggle').classList.remove('active');
+      document.getElementById('wallet-info').style.display = 'none';
+      document.getElementById('balance-info').classList.remove('show');
+      updateAirdropButton();
+    };
+
+    // Connect wallet
+    async function connectWallet() {
+      try {
+        if (typeof window.ethereum !== 'undefined') {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          signer = provider.getSigner();
+          walletAddress = await signer.getAddress();
+          
+          document.getElementById('wallet-status').textContent = `Connected: ${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`;
+          document.getElementById('connect-wallet').textContent = 'Connected';
+          document.getElementById('connect-wallet').disabled = true;
+          
+          // Listen for account changes
+          window.ethereum.on('accountsChanged', function (accounts) {
+            if (accounts.length === 0) {
+              // MetaMask is locked or user has no accounts
+              resetWalletConnection();
+            } else {
+              // Reload page to reconnect with new account
+              window.location.reload();
+            }
+          });
+          
+          updateAirdropButton();
+        } else {
+          alert('Please install MetaMask!');
+        }
+      } catch (error) {
+        console.error('Error connecting wallet:', error);
+        alert('Failed to connect wallet: ' + error.message);
+      }
+    }
+
+    function resetWalletConnection() {
+      provider = null;
+      signer = null;
+      walletAddress = null;
+      document.getElementById('wallet-status').textContent = 'Not connected';
+      document.getElementById('connect-wallet').textContent = 'Connect Wallet';
+      document.getElementById('connect-wallet').disabled = false;
+      document.getElementById('balance-info').classList.remove('show');
+      updateAirdropButton();
+    }
+
+    document.getElementById('connect-wallet').onclick = connectWallet;
+
+    // Check token balance when address is entered
+    document.getElementById('token-address').addEventListener('input', async function() {
+      const tokenAddress = this.value.trim();
+      if (isValidAddress(tokenAddress) && (provider || connectionMethod === 'private-key')) {
+        await checkTokenBalance(tokenAddress);
+      } else {
+        document.getElementById('balance-info').classList.remove('show');
+      }
+      updateAirdropButton();
+    });
+
+    async function checkTokenBalance(tokenAddress) {
+      try {
+        let contractProvider;
+        if (connectionMethod === 'wallet' && provider) {
+          contractProvider = provider;
+        } else if (connectionMethod === 'private-key') {
+          contractProvider = new ethers.providers.JsonRpcProvider('https://rpc.aurora.dev');
+        } else {
+          return;
+        }
+
+        tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, contractProvider);
+        tokenDecimals = await tokenContract.decimals();
+        tokenSymbol = await tokenContract.symbol();
+        
+        if (connectionMethod === 'wallet' && walletAddress) {
+          const balance = await tokenContract.balanceOf(walletAddress);
+          const balanceFormatted = ethers.utils.formatUnits(balance, tokenDecimals);
+          document.getElementById('token-balance').textContent = `Token Balance: ${balanceFormatted} ${tokenSymbol}`;
+        }
+        
+        document.getElementById('token-symbol').textContent = `Symbol: ${tokenSymbol}`;
+        document.getElementById('balance-info').classList.add('show');
+      } catch (error) {
+        console.error('Error checking token balance:', error);
+        document.getElementById('balance-info').classList.remove('show');
+      }
+    }
+
+    // Parse CSV file and fill textarea
+    document.getElementById('csv-upload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        let text = evt.target.result;
+        text = text.replace(/,/g, '\n').replace(/\r/g, '');
+        document.getElementById('wallets').value = text.trim();
+        updateAirdropButton();
+      };
+      reader.readAsText(file);
+    });
+
+    // Update airdrop button state
+    function updateAirdropButton() {
+      const tokenAddress = document.getElementById('token-address').value.trim();
+      const amount = document.getElementById('airdrop-amount').value.trim();
+      const wallets = document.getElementById('wallets').value.trim();
+      
+      const isValidToken = isValidAddress(tokenAddress);
+      const isValidAmount = amount && !isNaN(amount) && Number(amount) > 0;
+      const hasWallets = wallets.length > 0;
+      const isConnected = (connectionMethod === 'wallet' && provider && signer) || connectionMethod === 'private-key';
+      
+      document.getElementById('airdrop-btn').disabled = !(isValidToken && isValidAmount && hasWallets && isConnected);
+    }
+
+    // Add event listeners for real-time validation
+    document.getElementById('airdrop-amount').addEventListener('input', updateAirdropButton);
+    document.getElementById('wallets').addEventListener('input', updateAirdropButton);
+
+    // Validate Ethereum address
+    function isValidAddress(addr) {
+      return /^0x[a-fA-F0-9]{40}$/.test(addr.trim());
+    }
+
+    // Parse wallet addresses from textarea
+    function parseWallets(raw) {
+      return raw.split(/[\s,]+/).map(a => a.trim()).filter(a => isValidAddress(a));
+    }
+
+    document.getElementById('airdrop-btn').onclick = async function() {
+      const token = document.getElementById('token-address').value.trim();
+      const amount = document.getElementById('airdrop-amount').value.trim();
+      const rawWallets = document.getElementById('wallets').value;
+      const statusDiv = document.getElementById('airdrop-status');
+      const progressBar = document.getElementById('progress-bar');
+      const progressFill = document.getElementById('progress-fill');
+      
+      statusDiv.textContent = '';
+      progressBar.style.display = 'none';
+      
+      if (!isValidAddress(token)) {
+        statusDiv.textContent = 'Invalid token contract address.';
+        statusDiv.style.color = '#c00';
+        return;
+      }
+      
+      if (!amount || isNaN(amount) || Number(amount) <= 0) {
+        statusDiv.textContent = 'Enter a valid amount.';
+        statusDiv.style.color = '#c00';
+        return;
+      }
+      
+      const wallets = parseWallets(rawWallets);
+      if (wallets.length === 0) {
+        statusDiv.textContent = 'No valid wallet addresses found.';
+        statusDiv.style.color = '#c00';
+        return;
+      }
+
+      if (connectionMethod === 'wallet') {
+        if (!provider || !signer) {
+          statusDiv.textContent = 'Please connect your wallet first.';
+          statusDiv.style.color = '#c00';
+          return;
+        }
+        await executeWalletAirdrop(token, amount, wallets, statusDiv, progressBar, progressFill);
+      } else {
+        await executePrivateKeyAirdrop(token, amount, wallets, statusDiv, progressBar, progressFill);
+      }
+    };
+
+    async function executeWalletAirdrop(tokenAddress, amount, wallets, statusDiv, progressBar, progressFill) {
+      try {
+        const contract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+        const decimals = await contract.decimals();
+        const symbol = await contract.symbol();
+        const amountWei = ethers.utils.parseUnits(amount, decimals);
+        
+        // Check balance
+        const balance = await contract.balanceOf(walletAddress);
+        const totalNeeded = amountWei.mul(wallets.length);
+        
+        if (balance.lt(totalNeeded)) {
+          statusDiv.textContent = `Insufficient balance. Need ${ethers.utils.formatUnits(totalNeeded, decimals)} ${symbol}, have ${ethers.utils.formatUnits(balance, decimals)} ${symbol}`;
+          statusDiv.style.color = '#c00';
+          return;
+        }
+        
+        statusDiv.textContent = `Starting airdrop of ${amount} ${symbol} to ${wallets.length} wallets...`;
+        statusDiv.style.color = '#1ca64c';
+        progressBar.style.display = 'block';
+        
+        let successCount = 0;
+        let failCount = 0;
+        
+        for (let i = 0; i < wallets.length; i++) {
+          try {
+            const tx = await contract.transfer(wallets[i], amountWei);
+            statusDiv.textContent = `Sending to ${wallets[i].substring(0, 6)}... (${i + 1}/${wallets.length})`;
+            await tx.wait();
+            successCount++;
+            progressFill.style.width = `${((i + 1) / wallets.length) * 100}%`;
+          } catch (error) {
+            failCount++;
+            console.error(`Failed to send to ${wallets[i]}:`, error);
+          }
+        }
+        
+        statusDiv.textContent = `Airdrop complete! ${successCount} successful, ${failCount} failed.`;
+        statusDiv.style.color = '#1ca64c';
+        
+      } catch (error) {
+        statusDiv.textContent = `Error: ${error.message}`;
+        statusDiv.style.color = '#c00';
+      }
+    }
+
+    async function executePrivateKeyAirdrop(tokenAddress, amount, wallets, statusDiv, progressBar, progressFill) {
+      const privateKey = prompt('Enter your private key (without 0x prefix):');
+      if (!privateKey) {
+        statusDiv.textContent = 'Private key required.';
+        statusDiv.style.color = '#c00';
+        return;
+      }
+      
+      try {
+        const provider = new ethers.providers.JsonRpcProvider('https://rpc.aurora.dev');
+        const wallet = new ethers.Wallet(privateKey, provider);
+        const contract = new ethers.Contract(tokenAddress, ERC20_ABI, wallet);
+        
+        const decimals = await contract.decimals();
+        const symbol = await contract.symbol();
+        const amountWei = ethers.utils.parseUnits(amount, decimals);
+        
+        // Check balance
+        const balance = await contract.balanceOf(wallet.address);
+        const totalNeeded = amountWei.mul(wallets.length);
+        
+        if (balance.lt(totalNeeded)) {
+          statusDiv.textContent = `Insufficient balance. Need ${ethers.utils.formatUnits(totalNeeded, decimals)} ${symbol}, have ${ethers.utils.formatUnits(balance, decimals)} ${symbol}`;
+          statusDiv.style.color = '#c00';
+          return;
+        }
+        
+        statusDiv.textContent = `Starting airdrop of ${amount} ${symbol} to ${wallets.length} wallets...`;
+        statusDiv.style.color = '#1ca64c';
+        progressBar.style.display = 'block';
+        
+        let successCount = 0;
+        let failCount = 0;
+        
+        for (let i = 0; i < wallets.length; i++) {
+          try {
+            const tx = await contract.transfer(wallets[i], amountWei);
+            statusDiv.textContent = `Sending to ${wallets[i].substring(0, 6)}... (${i + 1}/${wallets.length})`;
+            await tx.wait();
+            successCount++;
+            progressFill.style.width = `${((i + 1) / wallets.length) * 100}%`;
+          } catch (error) {
+            failCount++;
+            console.error(`Failed to send to ${wallets[i]}:`, error);
+          }
+        }
+        
+        statusDiv.textContent = `Airdrop complete! ${successCount} successful, ${failCount} failed.`;
+        statusDiv.style.color = '#1ca64c';
+        
+      } catch (error) {
+        statusDiv.textContent = `Error: ${error.message}`;
+        statusDiv.style.color = '#c00';
+      }
+    }
+  </script>
+</body>
+</html> 
