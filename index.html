@@ -354,6 +354,27 @@
       box-shadow: 0 0 36px 12px rgba(255, 215, 0, 0.65), 0 8px 32px 0 rgba(37, 99, 235, 0.08);
       border-color: #FFD700;
     }
+    .status-mini {
+      font-size: 1rem;
+      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.03);
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 10px 0;
+      margin: 0;
+    }
+    .status-mini.operational {
+      border-color: #22c55e33;
+    }
+    .status-mini.coming-soon {
+      border-color: #fbbf24;
+    }
+    .status-dark {
+      background: #111;
+      color: #fff;
+      border: none;
+      box-shadow: none;
+    }
   </style>
 </head>
 <body>
@@ -371,6 +392,14 @@
       <span class="omega-symbol">Ω</span><span class="omega-text">mega DeFi</span>
     </h1>
     <p class="subtitle">Decentralized Finance Tools & Protocols</p>
+    <div class="defi-status-row" style="display: flex; gap: 16px; justify-content: center; margin-bottom: 24px;">
+      <div class="defi-card status-mini operational status-dark" id="operationalBtn" style="width: 120px; min-width: 120px; min-height: 38px; align-items: center; justify-content: center; padding: 8px 0; background: #111; color: #fff; border: 2px solid #22c55e; box-shadow: none;">
+        <div class="card-title" style="font-size: 1rem; margin-bottom: 0; color: #fff;">Operational</div>
+      </div>
+      <div class="defi-card status-mini coming-soon status-dark" id="comingSoonBtn" style="width: 110px; min-width: 110px; min-height: 38px; align-items: center; justify-content: center; padding: 8px 0; background: #111; color: #fff; border: 2px solid #FFD700; box-shadow: none; cursor: pointer;">
+        <div class="card-title" style="font-size: 1rem; margin-bottom: 0; color: #fff;">Coming Soon</div>
+      </div>
+    </div>
     <div class="defi-grid">
       <div class="defi-card operational" data-game="token-creator">
         <div class="card-icon">🪙</div>
@@ -431,6 +460,47 @@
           <span>OPERATIONAL</span>
         </div>
         <button class="launch-btn" onclick="window.open('https://app.auroracloud.dev/dashboard/solar-studios/silos/307/widgets/forwarder', '_blank')">Launch Forwarder</button>
+      </div>
+    </div>
+    <div class="coming-soon-section" id="coming-soon-section" style="margin-top: 48px; width: 100%; max-width: 1200px;">
+      <div class="section-title" style="font-size: 1.3rem; font-weight: 600; margin-bottom: 18px; text-align: left;">Coming Soon</div>
+      <div class="defi-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+        <div class="defi-card coming-soon" data-game="clob">
+          <div class="card-icon">📈</div>
+          <div class="card-title">CLOB</div>
+          <div class="card-description">A brand new way to trade coming soon</div>
+          <div class="card-status status-pending">
+            <div class="status-indicator"></div>
+            <span>COMING SOON</span>
+          </div>
+        </div>
+        <div class="defi-card coming-soon" data-game="staking">
+          <div class="card-icon">🔒</div>
+          <div class="card-title">Staking</div>
+          <div class="card-description">Stake your tokens and earn rewards</div>
+          <div class="card-status status-pending">
+            <div class="status-indicator"></div>
+            <span>COMING SOON</span>
+          </div>
+        </div>
+        <div class="defi-card coming-soon" data-game="claim">
+          <div class="card-icon">💰</div>
+          <div class="card-title">Claim Page</div>
+          <div class="card-description">Claim your airdrops, rewards, and more</div>
+          <div class="card-status status-pending">
+            <div class="status-indicator"></div>
+            <span>COMING SOON</span>
+          </div>
+        </div>
+        <div class="defi-card coming-soon" data-game="lp-locker">
+          <div class="card-icon">🔐</div>
+          <div class="card-title">LP Locker</div>
+          <div class="card-description">Lock your LP tokens for added security</div>
+          <div class="card-status status-pending">
+            <div class="status-indicator"></div>
+            <span>COMING SOON</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -518,6 +588,17 @@
     if (window.innerWidth <= 600) {
       document.body.style.paddingBottom = '60px';
     }
+
+    // Scroll to Coming Soon section when the box is clicked
+    document.addEventListener('DOMContentLoaded', function() {
+      var comingSoonBtn = document.getElementById('comingSoonBtn');
+      var comingSoonSection = document.getElementById('coming-soon-section');
+      if (comingSoonBtn && comingSoonSection) {
+        comingSoonBtn.addEventListener('click', function() {
+          comingSoonSection.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
+    });
   </script>
 </body>
 </html> 
