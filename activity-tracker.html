@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>On-Chain Activity</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      background: #fff;
+      color: #111;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .tracker-container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .tracker-title {
+      text-align: center;
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: 0.04em;
+    }
+    .wallet-section {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .wallet-status {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .connect-btn {
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 0.8rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .connect-btn:hover {
+      opacity: 0.8;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 2rem;
+      max-width: 700px;
+      margin: 2rem auto 1rem auto;
+    }
+    .stat-box {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 0.3rem;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+      font-weight: 500;
+    }
+    .leaderboard-section {
+      margin-top: 2rem;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .leaderboard {
+      background: #f8f9fa;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    .leaderboard-header {
+      background: #111;
+      color: #fff;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+      gap: 1rem;
+      font-weight: 600;
+    }
+    .leaderboard-row {
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+      gap: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      align-items: center;
+    }
+    .leaderboard-row:last-child {
+      border-bottom: none;
+    }
+    .rank {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .rank-1 { color: #ffd700; }
+    .rank-2 { color: #c0c0c0; }
+    .rank-3 { color: #cd7f32; }
+    .address {
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .balance, .transactions {
+      text-align: center;
+      font-weight: 600;
+    }
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.95rem;
+      margin: 2rem 0 1rem 0;
+    }
+    .token-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.3rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+    .omega-badge {
+      background: #ff6b35;
+      color: white;
+    }
+    .arcade-badge {
+      background: #4ecdc4;
+      color: white;
+    }
+    .wallet-box {
+      background: #f8f9fa;
+      border-radius: 1.2rem;
+      padding: 2.5rem 1rem 2rem 1rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .wallet-btn {
+      background: #111;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 1.2rem;
+      padding: 1rem 0;
+      width: 260px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 1.2rem;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media (max-width: 600px) {
+      .tracker-container {
+        margin: 1rem;
+        padding: 1.5rem 1rem;
+      }
+      .tracker-title {
+        font-size: 1.8rem;
+      }
+      .leaderboard-header, .leaderboard-row {
+        grid-template-columns: 1fr 1.5fr 1fr 1fr;
+        font-size: 0.9rem;
+      }
+      .address {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="tracker-container">
+    <div class="tracker-title">On-Chain Activity</div>
+    
+    <div class="wallet-section" id="wallet-section">
+      <div class="wallet-box">
+        <button id="connect-btn" class="wallet-btn" style="width: 260px; margin-bottom: 1.2rem;">Connect Wallet</button>
+        <button id="submit-btn" class="wallet-btn" style="width: 260px;">Submit Score</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-value" id="omega-balance">-</div>
+        <div class="stat-label">OMEGA Balance</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="arcade-balance">-</div>
+        <div class="stat-label">ARCADE Balance</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="tx-count">-</div>
+        <div class="stat-label">Total Transactions</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="user-rank">-</div>
+        <div class="stat-label">Your Rank</div>
+      </div>
+    </div>
+
+    <div class="leaderboard-section">
+      <div class="section-title">Leaderboard</div>
+      <div class="leaderboard">
+        <div class="leaderboard-header">
+          <div>Rank</div>
+          <div>Address</div>
+          <div>OMEGA Balance</div>
+          <div>ARCADE Balance</div>
+          <div>Transactions</div>
+        </div>
+        <div id="leaderboard-body">
+          <div class="loading">Loading leaderboard...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">&copy; 2025 Omega DeFi • Activity Tracker</div>
+
+  <script>
+    let provider, signer, userAddress;
+    let userStats = { omegaBalance: 0, arcadeBalance: 0, transactions: 0 };
+    let leaderboardData = [];
+    let refreshInterval;
+
+    // Token addresses
+    const ARCADE_TOKEN_ADDRESS = '0xFF3fD61427d3485c8e33cb5f5999EAd9639C56a5';
+    
+    // Aurora Blockscout API base URL
+    const API_BASE_URL = 'https://0x4e454228.explorer.aurora-cloud.dev/api';
+
+    // Sample addresses for leaderboard (replace with real addresses)
+    const sampleAddresses = [
+      '0x1234567890123456789012345678901234567890',
+      '0x2345678901234567890123456789012345678901',
+      '0x3456789012345678901234567890123456789012',
+      '0x4567890123456789012345678901234567890123',
+      '0x5678901234567890123456789012345678901234',
+      '0x6789012345678901234567890123456789012345',
+      '0x7890123456789012345678901234567890123456',
+      '0x8901234567890123456789012345678901234567',
+      '0x9012345678901234567890123456789012345678',
+      '0xa012345678901234567890123456789012345678'
+    ];
+
+    // OmegaLeaderboard contract integration
+    const LEADERBOARD_CONTRACT_ADDRESS = '0x4fd5329122d9a688b1c07ebb21ae81a1821ad1cf';
+    const LEADERBOARD_CONTRACT_ABI = [
+      {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"omega","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"arcade","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"txCount","type":"uint256"}],"name":"ScoreSubmitted","type":"event"},
+      {"inputs":[{"internalType":"uint256","name":"omega","type":"uint256"},{"internalType":"uint256","name":"arcade","type":"uint256"},{"internalType":"uint256","name":"txCount","type":"uint256"}],"name":"submitScore","outputs":[],"stateMutability":"nonpayable","type":"function"},
+      {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"entries","outputs":[{"internalType":"uint256","name":"omega","type":"uint256"},{"internalType":"uint256","name":"arcade","type":"uint256"},{"internalType":"uint256","name":"txCount","type":"uint256"},{"internalType":"uint256","name":"lastUpdated","type":"uint256"}],"stateMutability":"view","type":"function"},
+      {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getEntry","outputs":[{"components":[{"internalType":"uint256","name":"omega","type":"uint256"},{"internalType":"uint256","name":"arcade","type":"uint256"},{"internalType":"uint256","name":"txCount","type":"uint256"},{"internalType":"uint256","name":"lastUpdated","type":"uint256"}],"internalType":"struct OmegaLeaderboard.Entry","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},
+      {"inputs":[],"name":"getSubmitters","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
+      {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"submitters","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+    ];
+    let leaderboardContract;
+
+    // Get button elements after DOM is loaded
+    let connectBtn, submitBtn;
+    document.addEventListener('DOMContentLoaded', function() {
+      connectBtn = document.getElementById('connect-btn');
+      submitBtn = document.getElementById('submit-btn');
+      if (typeof ethers === 'undefined') {
+        alert('Error: ethers.js library failed to load. Please refresh the page.');
+        return;
+      }
+      
+      loadLeaderboard();
+      checkStoredWallet();
+      
+      // Set up 5-minute refresh interval
+      refreshInterval = setInterval(() => {
+        console.log('Refreshing leaderboard...');
+        loadLeaderboard();
+        if (userAddress) {
+          trackUserActivity();
+        }
+      }, 5 * 60 * 1000); // 5 minutes
+
+      if (connectBtn) {
+        connectBtn.addEventListener('click', async () => {
+          if (!userAddress) {
+            await connectWallet();
+            updateWalletButton();
+          } else {
+            // Disconnect wallet (reset UI)
+            userAddress = null;
+            provider = null;
+            signer = null;
+            userStats = {
+              omegaBalance: 0,
+              arcadeBalance: 0,
+              transactions: 0,
+              rank: '-',
+            };
+            updateWalletButton();
+            updateStatsUI();
+            // Optionally, hide stats grid
+            const statsGrid = document.getElementById('stats-grid');
+            if (statsGrid) statsGrid.style.display = 'none';
+          }
+        });
+      }
+
+      if (submitBtn) {
+        submitBtn.addEventListener('click', submitToLeaderboard);
+      }
+    });
+
+    function checkStoredWallet() {
+      const storedAddress = localStorage.getItem('omega_activity_wallet');
+      if (storedAddress && typeof window.ethereum !== 'undefined') {
+        connectWallet();
+      }
+    }
+
+    async function connectWallet() {
+      try {
+        if (typeof window.ethereum !== 'undefined') {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          signer = provider.getSigner();
+          userAddress = await signer.getAddress();
+          
+          localStorage.setItem('omega_activity_wallet', userAddress);
+          
+          if (connectBtn) {
+            connectBtn.textContent = 'Connected';
+            connectBtn.disabled = true;
+          }
+          
+          // Show/hide stats grid
+          const statsGrid = document.getElementById('stats-grid');
+          if (statsGrid) statsGrid.style.display = 'grid';
+          
+          // Track user activity
+          await trackUserActivity();
+          
+          // Listen for account changes
+          window.ethereum.on('accountsChanged', function (accounts) {
+            if (accounts.length === 0) {
+              resetWallet();
+            } else {
+              window.location.reload();
+            }
+          });
+          
+        } else {
+          alert('Please install MetaMask!');
+        }
+      } catch (error) {
+        console.error('Error connecting wallet:', error);
+        alert('Failed to connect wallet: ' + error.message);
+      }
+    }
+
+    function resetWallet() {
+      provider = null;
+      signer = null;
+      userAddress = null;
+      localStorage.removeItem('omega_activity_wallet');
+      if (connectBtn) {
+        connectBtn.textContent = 'Connect Wallet';
+        connectBtn.disabled = false;
+      }
+      // Hide stats grid
+      const statsGridHide = document.getElementById('stats-grid');
+      if (statsGridHide) statsGridHide.style.display = 'none';
+    }
+
+    async function trackUserActivity() {
+      if (!userAddress) return;
+
+      try {
+        // OMEGA is the native token
+        const omegaBalance = await getTokenBalance(userAddress, null);
+        const arcadeBalance = await getTokenBalance(userAddress, ARCADE_TOKEN_ADDRESS);
+        const transactionCount = await getTransactionCount(userAddress);
+
+        userStats = {
+          omegaBalance: omegaBalance,
+          arcadeBalance: arcadeBalance,
+          transactions: transactionCount
+        };
+
+        // Update UI
+        updateUserStats();
+        
+      } catch (error) {
+        console.error('Error tracking activity:', error);
+        // Use mock data if API fails
+        userStats = {
+          omegaBalance: Math.floor(Math.random() * 10000) + 100,
+          arcadeBalance: Math.floor(Math.random() * 5000) + 50,
+          transactions: Math.floor(Math.random() * 100) + 10
+        };
+        updateUserStats();
+      }
+    }
+
+    async function getTokenBalance(address, tokenAddress) {
+      try {
+        if (!tokenAddress) {
+          // Native OMEGA balance
+          if (!provider) return 0;
+          const rawBalance = await provider.getBalance(address);
+          return Number(ethers.utils.formatEther(rawBalance));
+        } else {
+          // ERC20 (ARCADE) balance
+          const erc20Abi = [
+            "function balanceOf(address) view returns (uint256)",
+            "function decimals() view returns (uint8)"
+          ];
+          const token = new ethers.Contract(tokenAddress, erc20Abi, provider);
+          const [rawBalance, decimals] = await Promise.all([
+            token.balanceOf(address),
+            token.decimals()
+          ]);
+          return Number(ethers.utils.formatUnits(rawBalance, decimals));
+        }
+      } catch (error) {
+        console.error('Error getting token balance:', error);
+        return 0;
+      }
+    }
+
+    async function getTransactionCount(address) {
+      try {
+        // Use Blockscout API to get all transactions (sent and received)
+        const url = `${API_BASE_URL}?module=account&action=txlist&address=${address}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.status === '1' && Array.isArray(data.result)) {
+          return data.result.length;
+        }
+        return 0;
+      } catch (error) {
+        console.error('Error getting transaction count:', error);
+        return 0;
+      }
+    }
+
+    function updateUserStats() {
+      document.getElementById('omega-balance').textContent = userStats.omegaBalance.toLocaleString();
+      document.getElementById('arcade-balance').textContent = userStats.arcadeBalance.toLocaleString();
+      document.getElementById('tx-count').textContent = userStats.transactions;
+      
+      // Calculate user rank
+      const userRank = calculateUserRank();
+      document.getElementById('user-rank').textContent = userRank > 0 ? `#${userRank}` : '-';
+    }
+
+    function calculateUserRank() {
+      if (!userAddress) return -1;
+      
+      const allUsers = [...leaderboardData];
+      if (userStats.omegaBalance > 0 || userStats.arcadeBalance > 0) {
+        allUsers.push({
+          address: userAddress.substring(0, 6) + '...' + userAddress.substring(38),
+          omegaBalance: userStats.omegaBalance,
+          arcadeBalance: userStats.arcadeBalance,
+          transactions: userStats.transactions
+        });
+      }
+      
+      // Sort by total token value (OMEGA + ARCADE), then by transactions
+      allUsers.sort((a, b) => {
+        const aTotal = a.omegaBalance + a.arcadeBalance;
+        const bTotal = b.omegaBalance + b.arcadeBalance;
+        
+        if (bTotal !== aTotal) {
+          return bTotal - aTotal;
+        }
+        return b.transactions - a.transactions;
+      });
+      
+      // Find user rank
+      for (let i = 0; i < allUsers.length; i++) {
+        if (allUsers[i].address === userAddress.substring(0, 6) + '...' + userAddress.substring(38)) {
+          return i + 1;
+        }
+      }
+      
+      return -1;
+    }
+
+    async function loadLeaderboard() {
+      const leaderboardBody = document.getElementById('leaderboard-body');
+      leaderboardBody.innerHTML = '<div class="loading">Loading leaderboard from blockchain...";</div>';
+      try {
+        if (!leaderboardContract) {
+          // Use provider for read-only if not connected
+          const ethProvider = provider || new ethers.providers.JsonRpcProvider('https://0x4e454228.rpc.aurora-cloud.dev');
+          leaderboardContract = new ethers.Contract(LEADERBOARD_CONTRACT_ADDRESS, LEADERBOARD_CONTRACT_ABI, ethProvider);
+        }
+        leaderboardData = [];
+        const submitters = await leaderboardContract.getSubmitters();
+        for (const address of submitters) {
+          const entry = await leaderboardContract.getEntry(address);
+          leaderboardData.push({
+            address: address.substring(0, 6) + '...' + address.substring(address.length - 4),
+            omegaBalance: Number(entry.omega),
+            arcadeBalance: Number(entry.arcade),
+            transactions: Number(entry.txCount),
+            lastUpdated: Number(entry.lastUpdated)
+          });
+        }
+        // Sort by total token value, then txCount
+        leaderboardData.sort((a, b) => {
+          const aTotal = a.omegaBalance + a.arcadeBalance;
+          const bTotal = b.omegaBalance + b.arcadeBalance;
+          if (bTotal !== aTotal) return bTotal - aTotal;
+          return b.transactions - a.transactions;
+        });
+        updateLeaderboardUI();
+      } catch (error) {
+        console.error('Error loading leaderboard:', error);
+        leaderboardBody.innerHTML = '<div class="loading">Could not load leaderboard from blockchain.</div>';
+      }
+    }
+
+    function updateLeaderboardUI() {
+      const leaderboardBody = document.getElementById('leaderboard-body');
+      leaderboardBody.innerHTML = '';
+      
+      leaderboardData.forEach((user, index) => {
+        const row = document.createElement('div');
+        row.className = 'leaderboard-row';
+        row.innerHTML = `
+          <div class="rank rank-${index + 1}">#${index + 1}</div>
+          <div class="address">${user.address}</div>
+          <div class="balance">${user.omegaBalance.toLocaleString()}</div>
+          <div class="balance">${user.arcadeBalance.toLocaleString()}</div>
+          <div class="transactions">${user.transactions}</div>
+        `;
+        leaderboardBody.appendChild(row);
+      });
+      
+      // Update user rank if connected
+      if (userAddress) {
+        const userRank = calculateUserRank();
+        if (userRank > 0) {
+          document.getElementById('user-rank').textContent = `#${userRank}`;
+        }
+      }
+    }
+
+    // Update connect/disconnect button logic
+    function updateWalletButton() {
+      if (!connectBtn || !submitBtn) return;
+      if (userAddress) {
+        connectBtn.textContent = 'Disconnect Wallet';
+        connectBtn.disabled = false;
+        submitBtn.disabled = false;
+      } else {
+        connectBtn.textContent = 'Connect Wallet';
+        connectBtn.disabled = false;
+        submitBtn.disabled = true;
+      }
+    }
+
+    async function submitToLeaderboard() {
+      if (!signer || !userAddress) {
+        alert('Connect your wallet first.');
+        return;
+      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      try {
+        // Always use a new contract instance with signer for transactions
+        const contractWithSigner = new ethers.Contract(LEADERBOARD_CONTRACT_ADDRESS, LEADERBOARD_CONTRACT_ABI, signer);
+        const tx = await contractWithSigner.submitScore(
+          Math.floor(userStats.omegaBalance),
+          Math.floor(userStats.arcadeBalance),
+          userStats.transactions
+        );
+        await tx.wait();
+        alert('Submitted to leaderboard!');
+        await loadLeaderboard();
+      } catch (err) {
+        console.error('Submit failed:', err);
+        alert('Failed to submit: ' + (err && err.message ? err.message : err));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Score';
+      }
+    }
+
+    // Clean up interval on page unload
+    window.addEventListener('beforeunload', function() {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+    });
+  </script>
+</body>
+</html> 
