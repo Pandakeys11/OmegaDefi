@@ -1,0 +1,291 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 0% 0%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  * {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+}
+
+/* Theme-specific styles */
+.theme-neon-samurai .bg-background { background: radial-gradient(ellipse at center, #0f0c29, #302b63, #24243e); }
+.theme-neon-samurai .bg-card { background: rgba(48, 43, 99, 0.8); backdrop-filter: blur(10px); }
+.theme-neon-samurai .text-foreground { color: #ffffff; }
+.theme-neon-samurai .text-muted-foreground { color: #a0a0a0; }
+.theme-neon-samurai .border-border { border-color: rgba(0, 255, 255, 0.3); }
+.theme-neon-samurai button { background: rgba(0, 255, 255, 0.1); border: 1px solid rgba(0, 255, 255, 0.3); color: #00ffff; }
+.theme-neon-samurai button:hover { background: rgba(0, 255, 255, 0.2); border-color: rgba(0, 255, 255, 0.5); }
+
+.theme-quantum-labs .bg-background { background: conic-gradient(at top right, #2c3e50, #3b6978, #204051); }
+.theme-quantum-labs .bg-card { background: rgba(59, 105, 120, 0.8); backdrop-filter: blur(10px); }
+.theme-quantum-labs .text-foreground { color: #ffffff; }
+.theme-quantum-labs .text-muted-foreground { color: #a0a0a0; }
+.theme-quantum-labs .border-border { border-color: rgba(16, 185, 129, 0.3); }
+.theme-quantum-labs button { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; }
+.theme-quantum-labs button:hover { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); }
+
+.theme-solar-temple .bg-background { background: linear-gradient(to bottom left, #654ea3, #eaafc8, #fbc2eb); }
+.theme-solar-temple .bg-card { background: rgba(234, 175, 200, 0.8); backdrop-filter: blur(10px); }
+.theme-solar-temple .text-foreground { color: #000000; }
+.theme-solar-temple .text-muted-foreground { color: #666666; }
+.theme-solar-temple .border-border { border-color: rgba(236, 72, 153, 0.3); }
+.theme-solar-temple button { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); color: #ec4899; }
+.theme-solar-temple button:hover { background: rgba(236, 72, 153, 0.2); border-color: rgba(236, 72, 153, 0.5); }
+
+.theme-matrix .bg-background { background: #000000; }
+.theme-matrix .bg-card { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); }
+.theme-matrix .text-foreground { color: #00ff00; }
+.theme-matrix .text-muted-foreground { color: #00cc00; }
+.theme-matrix .border-border { border-color: rgba(0, 255, 0, 0.3); }
+.theme-matrix button { background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); color: #00ff00; }
+.theme-matrix button:hover { background: rgba(0, 255, 0, 0.2); border-color: rgba(0, 255, 0, 0.5); }
+
+.theme-cyber-core .bg-background { background: linear-gradient(to bottom right, #0a0a0a, #1a1a2e, #16213e); }
+.theme-cyber-core .bg-card { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); }
+.theme-cyber-core .text-foreground { color: #ffffff; }
+.theme-cyber-core .text-muted-foreground { color: #a0a0a0; }
+.theme-cyber-core .border-border { border-color: rgba(0, 255, 255, 0.3); }
+.theme-cyber-core button { background: rgba(0, 255, 255, 0.1); border: 1px solid rgba(0, 255, 255, 0.3); color: #00ffff; }
+.theme-cyber-core button:hover { background: rgba(0, 255, 255, 0.2); border-color: rgba(0, 255, 255, 0.5); }
+
+.theme-holographic .bg-background { background: linear-gradient(to bottom right, #ff006e, #8338ec, #3a86ff); }
+.theme-holographic .bg-card { background: rgba(131, 56, 236, 0.8); backdrop-filter: blur(10px); }
+.theme-holographic .text-foreground { color: #ffffff; }
+.theme-holographic .text-muted-foreground { color: #a0a0a0; }
+.theme-holographic .border-border { border-color: rgba(0, 255, 255, 0.3); }
+.theme-holographic button { background: rgba(0, 255, 255, 0.1); border: 1px solid rgba(0, 255, 255, 0.3); color: #00ffff; }
+.theme-holographic button:hover { background: rgba(0, 255, 255, 0.2); border-color: rgba(0, 255, 255, 0.5); }
+
+.theme-neon-void .bg-background { background: linear-gradient(to bottom right, #000000, #1a0033, #330033); }
+.theme-neon-void .bg-card { background: rgba(51, 0, 51, 0.8); backdrop-filter: blur(10px); }
+.theme-neon-void .text-foreground { color: #ffffff; }
+.theme-neon-void .text-muted-foreground { color: #a0a0a0; }
+.theme-neon-void .border-border { border-color: rgba(168, 85, 247, 0.3); }
+.theme-neon-void button { background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); color: #a855f7; }
+.theme-neon-void button:hover { background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5); }
+
+.theme-quantum-synth .bg-background { background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364); }
+.theme-quantum-synth .bg-card { background: rgba(44, 83, 100, 0.8); backdrop-filter: blur(10px); }
+.theme-quantum-synth .text-foreground { color: #ffffff; }
+.theme-quantum-synth .text-muted-foreground { color: #a0a0a0; }
+.theme-quantum-synth .border-border { border-color: rgba(20, 184, 166, 0.3); }
+.theme-quantum-synth button { background: rgba(20, 184, 166, 0.1); border: 1px solid rgba(20, 184, 166, 0.3); color: #14b8a6; }
+.theme-quantum-synth button:hover { background: rgba(20, 184, 166, 0.2); border-color: rgba(20, 184, 166, 0.5); }
+
+.theme-omega-pulse .bg-background { background: linear-gradient(to bottom right, #1e1e1e, #2d1b69, #1e1e1e); }
+.theme-omega-pulse .bg-card { background: rgba(45, 27, 105, 0.8); backdrop-filter: blur(10px); }
+.theme-omega-pulse .text-foreground { color: #ffffff; }
+.theme-omega-pulse .text-muted-foreground { color: #a0a0a0; }
+.theme-omega-pulse .border-border { border-color: rgba(168, 85, 247, 0.3); }
+.theme-omega-pulse button { background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); color: #a855f7; }
+.theme-omega-pulse button:hover { background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5); }
+
+.theme-solar-flux .bg-background { background: linear-gradient(to bottom right, #ffffff, #fef3c7, #fed7aa); }
+.theme-solar-flux .bg-card { background: rgba(254, 215, 170, 0.8); backdrop-filter: blur(10px); }
+.theme-solar-flux .text-foreground { color: #000000; }
+.theme-solar-flux .text-muted-foreground { color: #666666; }
+.theme-solar-flux .border-border { border-color: rgba(220, 38, 38, 0.3); }
+.theme-solar-flux button { background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; }
+.theme-solar-flux button:hover { background: rgba(220, 38, 38, 0.2); border-color: rgba(220, 38, 38, 0.5); }
+
+.theme-dragon-ball .bg-background { background: radial-gradient(ellipse at center, #1a0f0f, #2d1b1b, #4a1f1f); }
+.theme-dragon-ball .bg-card { background: rgba(74, 31, 31, 0.8); backdrop-filter: blur(10px); }
+.theme-dragon-ball .text-foreground { color: #ffffff; }
+.theme-dragon-ball .text-muted-foreground { color: #a0a0a0; }
+.theme-dragon-ball .border-border { border-color: rgba(251, 146, 60, 0.3); }
+.theme-dragon-ball button { background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.3); color: #fb923c; }
+.theme-dragon-ball button:hover { background: rgba(251, 146, 60, 0.2); border-color: rgba(251, 146, 60, 0.5); }
+
+.theme-naruto .bg-background { background: conic-gradient(at bottom left, #1a0f0f, #2d1b1b, #4a1f1f); }
+.theme-naruto .bg-card { background: rgba(74, 31, 31, 0.8); backdrop-filter: blur(10px); }
+.theme-naruto .text-foreground { color: #ffffff; }
+.theme-naruto .text-muted-foreground { color: #a0a0a0; }
+.theme-naruto .border-border { border-color: rgba(251, 146, 60, 0.3); }
+.theme-naruto button { background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.3); color: #fb923c; }
+.theme-naruto button:hover { background: rgba(251, 146, 60, 0.2); border-color: rgba(251, 146, 60, 0.5); }
+
+.theme-one-piece .bg-background { background: radial-gradient(circle at top, #1a0f0f, #2d1b1b, #4a1f1f); }
+.theme-one-piece .bg-card { background: rgba(74, 31, 31, 0.8); backdrop-filter: blur(10px); }
+.theme-one-piece .text-foreground { color: #ffffff; }
+.theme-one-piece .text-muted-foreground { color: #a0a0a0; }
+.theme-one-piece .border-border { border-color: rgba(251, 146, 60, 0.3); }
+.theme-one-piece button { background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.3); color: #fb923c; }
+.theme-one-piece button:hover { background: rgba(251, 146, 60, 0.2); border-color: rgba(251, 146, 60, 0.5); }
+
+.theme-attack-titan .bg-background { background: conic-gradient(at top right, #1a0f0f, #2d1b1b, #4a1f1f); }
+.theme-attack-titan .bg-card { background: rgba(74, 31, 31, 0.8); backdrop-filter: blur(10px); }
+.theme-attack-titan .text-foreground { color: #ffffff; }
+.theme-attack-titan .text-muted-foreground { color: #a0a0a0; }
+.theme-attack-titan .border-border { border-color: rgba(251, 146, 60, 0.3); }
+.theme-attack-titan button { background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.3); color: #fb923c; }
+.theme-attack-titan button:hover { background: rgba(251, 146, 60, 0.2); border-color: rgba(251, 146, 60, 0.5); }
+
+.theme-demon-slayer .bg-background { background: radial-gradient(ellipse at bottom, #1a0f0f, #2d1b1b, #4a1f1f); }
+.theme-demon-slayer .bg-card { background: rgba(74, 31, 31, 0.8); backdrop-filter: blur(10px); }
+.theme-demon-slayer .text-foreground { color: #ffffff; }
+.theme-demon-slayer .text-muted-foreground { color: #a0a0a0; }
+.theme-demon-slayer .border-border { border-color: rgba(251, 146, 60, 0.3); }
+.theme-demon-slayer button { background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.3); color: #fb923c; }
+.theme-demon-slayer button:hover { background: rgba(251, 146, 60, 0.2); border-color: rgba(251, 146, 60, 0.5); }
+
+.theme-jujutsu-kaisen .bg-background { background: conic-gradient(at bottom right, #1a0f0f, #2d1b1b, #4a1f1f); }
+.theme-jujutsu-kaisen .bg-card { background: rgba(74, 31, 31, 0.8); backdrop-filter: blur(10px); }
+.theme-jujutsu-kaisen .text-foreground { color: #ffffff; }
+.theme-jujutsu-kaisen .text-muted-foreground { color: #a0a0a0; }
+.theme-jujutsu-kaisen .border-border { border-color: rgba(251, 146, 60, 0.3); }
+.theme-jujutsu-kaisen button { background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.3); color: #fb923c; }
+.theme-jujutsu-kaisen button:hover { background: rgba(251, 146, 60, 0.2); border-color: rgba(251, 146, 60, 0.5); }
+
+.theme-my-hero-academia .bg-background { background: conic-gradient(at top left, #1a0f2e, #2d1b4a, #4a1f6b); }
+.theme-my-hero-academia .bg-card { background: rgba(74, 31, 107, 0.8); backdrop-filter: blur(10px); }
+.theme-my-hero-academia .text-foreground { color: #ffffff; }
+.theme-my-hero-academia .text-muted-foreground { color: #a0a0a0; }
+.theme-my-hero-academia .border-border { border-color: rgba(59, 130, 246, 0.3); }
+.theme-my-hero-academia button { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; }
+.theme-my-hero-academia button:hover { background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.5); }
+
+.theme-spider-verse .bg-background { background: radial-gradient(circle at center, #1a0f0f, #2d1b1b, #4a1f1f); }
+.theme-spider-verse .bg-card { background: rgba(74, 31, 31, 0.8); backdrop-filter: blur(10px); }
+.theme-spider-verse .text-foreground { color: #ffffff; }
+.theme-spider-verse .text-muted-foreground { color: #a0a0a0; }
+.theme-spider-verse .border-border { border-color: rgba(239, 68, 68, 0.3); }
+.theme-spider-verse button { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
+.theme-spider-verse button:hover { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); }
+
+.theme-avatar .bg-background { background: conic-gradient(at bottom right, #0f2e1a, #1b4a2d, #1f6b4a); }
+.theme-avatar .bg-card { background: rgba(31, 107, 74, 0.8); backdrop-filter: blur(10px); }
+.theme-avatar .text-foreground { color: #ffffff; }
+.theme-avatar .text-muted-foreground { color: #a0a0a0; }
+.theme-avatar .border-border { border-color: rgba(34, 197, 94, 0.3); }
+.theme-avatar button { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; }
+.theme-avatar button:hover { background: rgba(34, 197, 94, 0.2); border-color: rgba(34, 197, 94, 0.5); }
+
+.theme-rick-morty .bg-background { background: radial-gradient(ellipse at bottom, #1a0f2e, #2d1b4a, #4a1f6b); }
+.theme-rick-morty .bg-card { background: rgba(74, 31, 107, 0.8); backdrop-filter: blur(10px); }
+.theme-rick-morty .text-foreground { color: #ffffff; }
+.theme-rick-morty .text-muted-foreground { color: #a0a0a0; }
+.theme-rick-morty .border-border { border-color: rgba(34, 197, 94, 0.3); }
+.theme-rick-morty button { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; }
+.theme-rick-morty button:hover { background: rgba(34, 197, 94, 0.2); border-color: rgba(34, 197, 94, 0.5); }
+
+/* Performance optimizations */
+@layer components {
+  .clickable-hover {
+    @apply transition-all duration-300 ease-out;
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  .clickable-hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+    z-index: 1;
+    will-change: left;
+  }
+
+  .clickable-hover:hover::before {
+    left: 100%;
+  }
+
+  .clickable-hover:hover {
+    transform: translateY(-2px);
+  }
+
+  .dark .clickable-hover:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Animations */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-slow-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.animate-spin-slow-reverse {
+  animation: spin-slow-reverse 3s linear infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+} 

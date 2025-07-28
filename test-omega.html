@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omega Symbol Test - Working Solution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #2a2a2a;
+      --bg-card: rgba(26, 26, 26, 0.8);
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --text-muted: #666666;
+      --accent-primary: #00ff88;
+      --accent-secondary: #00d4ff;
+      --border-primary: #333333;
+      --border-secondary: #444444;
+      --gradient-primary: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+      --shadow-primary: 0 8px 32px rgba(0, 255, 136, 0.3);
+      --shadow-secondary: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .test-container {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid var(--border-primary);
+      border-radius: 10px;
+      background: var(--bg-card);
+    }
+    
+    .omega-test {
+      margin: 10px;
+      font-size: 2rem;
+    }
+    
+    .omega-symbol {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1.1em;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5));
+      transition: filter 0.3s ease;
+    }
+    
+    .omega-symbol:hover {
+      filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.8));
+    }
+    
+    .logo-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+    }
+    
+    .logo-circle::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      z-index: -1;
+      opacity: 0.3;
+      transition: opacity 0.3s ease;
+    }
+    
+    .logo-circle:hover::before {
+      opacity: 0.6;
+    }
+    
+    .logo-circle:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 50px rgba(0, 255, 136, 0.4);
+    }
+    
+    .logo-symbol {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 3.5rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.5));
+      transition: filter 0.3s ease;
+      line-height: 1;
+    }
+    
+    .logo-symbol:hover {
+      filter: drop-shadow(0 0 25px rgba(0, 255, 136, 0.8));
+    }
+    
+    .success {
+      color: var(--accent-primary);
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Omega Symbol Test - Working Solution</h1>
+  
+  <div class="test-container">
+    <h2>✅ Working: Text Omega Symbol (Ω)</h2>
+    <div class="omega-test">
+      <span class="omega-symbol">Ω</span>
+    </div>
+    <p class="success">This should display correctly!</p>
+  </div>
+  
+      <div class="test-container">
+      <h2>✅ Working: New Circular Logo Design</h2>
+      <div class="omega-test">
+        <div class="logo-circle">
+          <div class="logo-symbol">Ω</div>
+        </div>
+      </div>
+      <p class="success">New circular logo design - much closer to original!</p>
+    </div>
+  
+  <div class="test-container">
+    <h2>✅ Working: Title with Omega</h2>
+    <div class="omega-test">
+      <h1 style="font-size: 2rem; margin: 0;">
+        <span class="omega-symbol">Ω</span>mega DeFi
+      </h1>
+    </div>
+    <p class="success">Perfect for page titles!</p>
+  </div>
+  
+  <div class="test-container">
+    <h2>✅ Working: Simple Text Fallback</h2>
+    <div class="omega-test" style="font-size: 4rem; font-weight: bold; color: var(--accent-primary);">Ω</div>
+    <p class="success">Simple fallback if gradients don't work!</p>
+  </div>
+  
+  <script>
+    console.log('✅ Omega symbol test loaded successfully!');
+    console.log('The text-based Omega symbol (Ω) should display correctly on all browsers.');
+    
+    // Check if the symbol is visible
+    const symbols = document.querySelectorAll('.omega-symbol, .omega-symbol-large');
+    console.log(`Found ${symbols.length} Omega symbols on the page`);
+    
+    symbols.forEach((symbol, index) => {
+      console.log(`Symbol ${index + 1}:`, symbol.textContent);
+    });
+  </script>
+</body>
+</html> 

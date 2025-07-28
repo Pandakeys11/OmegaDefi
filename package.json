@@ -1,0 +1,27 @@
+{
+  "name": "omegadefi",
+  "version": "1.0.0",
+  "description": "Omega DeFi Hub - A comprehensive DeFi platform",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server --port=3000 --open=/index.html --host=localhost",
+    "start": "live-server --port=3000 --open=/index.html --host=localhost",
+    "build": "echo 'Static HTML build - no build step required'",
+    "serve": "live-server --port=3000 --host=localhost"
+  },
+  "keywords": [
+    "defi",
+    "blockchain",
+    "ethereum",
+    "web3",
+    "cryptocurrency"
+  ],
+  "author": "Omega DeFi Team",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 

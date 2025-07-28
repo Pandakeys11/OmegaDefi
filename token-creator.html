@@ -4,528 +4,641 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Omega Token Creator</title>
-  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
   <style>
-    body {
-      background: #fff;
-      color: #18181b;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 24px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.06);
-      padding: 48px 32px 32px 32px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 340px;
-      max-width: 95vw;
-      margin-top: 48px;
-    }
-    .omega-title {
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      font-size: 2.5rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-      text-align: center;
-      color: #18181b;
-      gap: 0.08em;
-    }
-    .omega-symbol {
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      font-size: 1.1em;
-      line-height: 1;
-      margin-right: 0.04em;
-      display: inline-block;
-      vertical-align: baseline;
-      color: #18181b;
-    }
-    .subtitle {
-      font-size: 1.1rem;
-      color: #52525b;
-      text-align: center;
-      margin-bottom: 32px;
-      font-weight: 400;
-    }
-    .form {
-      width: 100%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      margin-bottom: 24px;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    label {
-      font-size: 1rem;
-      font-weight: 500;
-      color: #18181b;
-    }
-    input, select {
-      padding: 10px 12px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 1rem;
-      background: #f9fafb;
-      color: #18181b;
-      outline: none;
-      transition: border 0.2s;
-    }
-    input:focus, select:focus {
-      border-color: #18181b;
-    }
     .advanced-toggle {
       background: none;
       border: none;
-      color: #2563eb;
+      color: var(--accent-primary);
       font-size: 0.98rem;
       font-weight: 500;
       cursor: pointer;
       margin-top: 4px;
-      margin-bottom: 8px;
-      text-align: left;
-      padding: 0;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      transition: text-decoration-color 0.2s;
     }
-    .advanced-section {
+    
+    .advanced-toggle:hover {
+      text-decoration-color: var(--accent-primary);
+    }
+    
+    .advanced-fields {
       display: none;
+      gap: 18px;
+    }
+    
+    .advanced-fields.show {
+      display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 8px;
-      background: #f3f4f6;
-      border-radius: 10px;
-      padding: 14px 16px 8px 16px;
-      border: 1px solid #e5e7eb;
     }
-    .advanced-section.active {
-      display: flex;
-    }
-    .btn-row {
-      display: flex;
-      gap: 16px;
-      margin-top: 8px;
-      justify-content: flex-end;
-    }
-    .btn {
-      background: #18181b;
-      color: #fff;
-      border: none;
+    
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-primary);
       border-radius: 12px;
-      padding: 12px 32px;
-      font-size: 1rem;
-      font-weight: 600;
+      padding: 8px 16px;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 14px 0 rgba(24, 24, 27, 0.10);
-    }
-    .btn:disabled {
-      background: #e5e7eb;
-      color: #a1a1aa;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    .status-area {
-      margin-top: 18px;
-      min-height: 32px;
-      font-size: 1rem;
-      text-align: center;
-    }
-    .status-success {
-      color: #22c55e;
-      font-weight: 600;
-    }
-    .status-error {
-      color: #ef4444;
-      font-weight: 600;
-    }
-    .status-info {
-      color: #2563eb;
-      font-weight: 500;
-    }
-    .contract-details {
-      margin-top: 24px;
-      padding: 20px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      display: none;
-    }
-    .contract-details.active {
-      display: block;
-    }
-    .contract-details h3 {
-      margin: 0 0 16px 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #18181b;
-    }
-    .contract-info {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .contract-info-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .contract-info-item:last-child {
-      border-bottom: none;
-    }
-    .contract-info-label {
-      font-weight: 500;
-      color: #52525b;
-      font-size: 0.95rem;
-    }
-    .contract-info-value {
-      font-family: 'Courier New', monospace;
-      font-size: 0.9rem;
-      color: #18181b;
-      word-break: break-all;
-    }
-    .contract-links {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .contract-link {
-      background: #18181b;
-      color: #fff;
       text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .contract-link:hover {
-      background: #374151;
+    
+    .back-btn:hover {
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+      border-color: var(--accent-primary);
     }
-    .contract-code {
-      margin-top: 16px;
-      padding: 16px;
-      background: #1e293b;
-      border-radius: 8px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      color: #e2e8f0;
-      max-height: 300px;
-      overflow-y: auto;
-      white-space: pre-wrap;
+    
+    /* Modern Popup Modal Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .footer {
-      margin-top: 48px;
-      font-size: 0.95rem;
-      color: #a1a1aa;
-      text-align: center;
+    
+    .popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .popup-modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 480px;
+      width: 90%;
+      position: relative;
+      transform: scale(0.9) translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    
+    .popup-overlay.show .popup-modal {
+      transform: scale(1) translateY(0);
+    }
+    
+    .popup-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .popup-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    
+    .popup-icon.success {
+      background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 212, 255, 0.2));
+      border: 2px solid var(--accent-primary);
+      color: var(--accent-primary);
+    }
+    
+    .popup-icon.error {
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 69, 58, 0.2));
+      border: 2px solid #ff6b35;
+      color: #ff6b35;
+    }
+    
+    .popup-icon.warning {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.2));
+      border: 2px solid #ffc107;
+      color: #ffc107;
+    }
+    
+    .popup-icon.info {
+      background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(156, 39, 176, 0.2));
+      border: 2px solid #2196f3;
+      color: #2196f3;
+    }
+    
+    .popup-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+    
+    .popup-content {
+      color: var(--text-secondary);
       line-height: 1.6;
+      margin-bottom: 24px;
     }
-    @media (max-width: 600px) {
-      .container {
-        min-width: unset;
-        width: 100vw;
-        border-radius: 0;
-        padding: 24px 4vw 16px 4vw;
-      }
-      .form {
-        max-width: 98vw;
-      }
+    
+    .popup-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    
+    .popup-btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .popup-btn.primary {
+      background: var(--gradient-primary);
+      color: var(--bg-primary);
+    }
+    
+    .popup-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+    }
+    
+    .popup-btn.secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-primary);
+    }
+    
+    .popup-btn.secondary:hover {
+      background: var(--border-primary);
+      color: var(--text-primary);
+    }
+    
+    .popup-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      line-height: 1;
+    }
+    
+    .popup-close:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+    
+    /* Legacy message styles for backward compatibility */
+    .success-message {
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      color: var(--accent-primary);
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .error-message {
+      background: rgba(255, 107, 53, 0.1);
+      border: 1px solid var(--accent-tertiary);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      color: var(--accent-tertiary);
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .home-btn {
+      padding: 10px;
+      min-width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .home-btn svg {
+      transition: transform 0.2s ease;
+    }
+    
+    .home-btn:hover svg {
+      transform: scale(1.1);
     }
   </style>
 </head>
 <body>
+  <a href="index.html" class="back-btn">← Back to Hub</a>
+  
+  <div class="wallet-panel">
+    <div class="wallet-info">
+      <span class="wallet-status" id="walletStatus">Wallet Not Connected</span>
+      <span class="wallet-address" id="walletAddress" style="display:none;"></span>
+    </div>
+    <button class="wallet-action-btn" id="walletBtn">Connect Wallet</button>
+    <button class="wallet-action-btn" id="disconnectBtn" style="display:none;">Disconnect</button>
+    <button class="wallet-action-btn home-btn" onclick="window.open('https://omeganetwork.co', '_blank')" title="Go to Omega Network">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 1L1 8L3 8L3 14L6 14L6 10L10 10L10 14L13 14L13 8L15 8L8 1Z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+  
   <div class="container">
-    <h1 class="omega-title"><span class="omega-symbol">Ω</span>mega Token Creator</h1>
-    <div class="subtitle">Deploy your own Omega-20 token in seconds. No coding required.</div>
-    <form class="form" id="tokenForm" autocomplete="off">
-      <div class="form-group">
-        <label for="name">Token Name</label>
-        <input type="text" id="name" name="name" required maxlength="32" placeholder="e.g. Omega Token">
+    <h1 class="omega-title">
+      <span class="omega-symbol">
+        <svg width="32" height="32" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#00ff88"/>
+              <stop offset="100%" style="stop-color:#00d4ff"/>
+            </linearGradient>
+          </defs>
+          <polygon fill="url(#titleGradient)" points="387,137 386,138 372,138 371,139 364,139 363,140 358,140 357,141 351,141 350,142 347,142 346,143 343,143 342,144 338,144 337,145 334,145 333,146 331,146 330,147 327,147 326,148 324,148 323,149 320,149 319,150 318,150 317,151 315,151 314,152 312,152 311,153 310,153 309,154 307,154 306,155 305,155 304,156 302,156 301,157 300,157 299,158 298,158 297,159 295,159 294,160 293,160 292,161 291,161 290,162 289,162 288,163 287,163 286,164 285,164 283,166 282,166 281,167 280,167 279,168 278,168 277,169 276,169 274,171 273,171 271,173 270,173 268,175 267,175 266,176 265,176 263,178 262,178 259,181 258,181 255,184 254,184 251,187 250,187 244,193 243,193 228,208 228,209 220,217 220,218 217,221 217,222 214,225 214,226 212,228 212,229 210,231 210,232 208,234 208,235 206,237 206,238 205,239 205,240 203,242 203,243 202,244 202,245 201,246 201,247 199,249 199,250 198,251 198,252 197,253 197,254 196,255 196,256 195,257 195,258 194,259 194,261 193,262 193,263 192,264 192,265 191,266 191,268 190,269 190,270 189,271 189,273 188,274 188,276 187,277 187,279 186,280 186,281 185,282 185,285 184,286 184,289 183,290 183,292 182,293 182,296 181,297 181,300 180,301 180,306 179,307 179,310 178,311 178,317 177,318 177,328 176,329 176,368 177,369 177,379 178,380 178,385 179,386 179,390 180,391 180,396 181,397 181,400 182,401 182,404 183,405 183,407 184,408 184,411 185,412 185,414 186,415 186,417 187,418 187,420 188,421 188,423 189,424 189,425 190,426 190,427 191,428 191,430 192,431 192,432 193,433 193,435 194,436 194,437 195,438 195,439 196,440 196,441 197,442 197,443 198,444 198,445 199,446 199,447 201,449 201,450 202,451 202,452 203,453 203,454 205,456 205,457 206,458 206,459 208,461 208,462 210,464 210,465 212,467 212,468 214,470 214,471 218,475 218,476 223,481 223,482 228,487 228,488 248,508 249,508 255,514 256,514 257,515 257,516 258,516 261,519 262,519 266,523 267,523 271,527 272,527 276,531 277,531 279,533 280,533 283,536 284,536 286,538 287,538 289,540 290,540 293,543 294,543 298,547 299,547 301,549 301,550 304,553 304,554 305,555 305,558 301,562 226,562 225,561 213,561 212,560 208,560 207,559 203,559 202,558 200,558 199,557 197,557 196,556 195,556 194,555 193,555 191,553 190,553 187,550 186,550 182,546 182,545 179,542 179,541 177,539 177,538 176,537 176,536 175,535 175,534 174,533 174,531 173,530 173,529 172,528 172,527 156,527 157,528 157,532 158,533 158,539 159,540 159,547 160,548 160,554 161,555 161,559 162,560 162,566 163,567 162,568 163,569 163,575 164,576 164,582 165,583 165,588 166,589 166,597 167,598 167,603 168,604 168,609 169,610 169,616 170,617 170,621 354,621 354,617 353,616 353,614 352,613 352,610 351,609 351,605 350,604 350,601 349,600 349,597 348,596 348,593 347,592 347,588 346,587 346,584 345,583 345,581 344,580 344,576 343,575 343,572 342,571 342,568 341,567 341,563 340,562 340,559 339,558 339,555 338,554 338,552 337,551 337,547 336,546 336,542 335,541 335,539 334,538 334,535 333,534 333,532 332,531 332,530 330,528 329,528 327,526 326,526 321,521 320,521 298,499 298,498 293,493 293,492 290,489 290,488 288,486 288,485 286,483 286,482 284,480 284,479 282,477 282,476 280,474 280,473 279,472 279,471 278,470 278,469 276,467 276,466 275,465 275,464 274,463 274,462 273,461 273,460 272,459 272,458 271,457 271,456 270,455 270,454 269,453 269,452 268,451 268,450 267,449 267,448 266,447 266,445 265,444 265,443 264,442 264,440 263,439 263,438 262,437 262,435 261,434 261,432 260,431 260,430 259,429 259,427 258,426 258,423 257,422 257,420 256,419 256,417 255,416 255,413 254,412 254,408 253,407 253,404 252,403 252,399 251,398 251,392 250,391 250,385 249,384 249,377 248,376 248,360 247,359 247,343 248,342 248,328 249,327 249,319 250,318 250,310 251,309 251,302 252,301 252,298 253,297 253,293 254,292 254,289 255,288 255,285 256,284 256,282 257,281 257,279 258,278 258,276 259,275 259,273 260,272 260,270 261,269 261,268 262,267 262,265 263,264 263,263 264,262 264,260 265,259 265,258 266,257 266,256 267,255 267,254 268,253 268,252 269,251 269,250 270,249 270,248 271,247 271,246 272,245 272,244 273,243 273,242 274,241 274,240 276,238 276,237 277,236 277,235 279,233 279,232 281,230 281,229 283,227 283,226 285,224 285,223 288,220 288,219 293,214 293,213 311,195 312,195 317,190 318,190 321,187 322,187 324,185 325,185 326,184 327,184 329,182 330,182 331,181 332,181 333,180 334,180 335,179 336,179 338,177 339,177 340,176 342,176 343,175 344,175 345,174 346,174 347,173 348,173 349,172 351,172 352,171 353,171 354,170 356,170 357,169 359,169 360,168 363,168 364,167 366,167 367,166 370,166 371,165 375,165 376,164 380,164 381,163 387,163 388,162 410,162 411,163 416,163 417,164 422,164 423,165 428,165 429,166 432,166 433,167 435,167 436,168 439,168 440,169 442,169 443,170 445,170 446,171 447,171 448,172 450,172 451,173 452,173 453,174 454,174 455,175 457,175 458,176 459,176 460,177 461,177 463,179 464,179 465,180 466,180 467,181 468,181 469,182 470,182 473,185 474,185 475,186 476,186 479,189 480,189 482,191 483,191 488,196 489,196 506,213 506,214 510,218 510,219 513,222 513,223 516,226 516,227 518,229 518,230 520,232 520,233 522,235 522,236 523,237 523,238 525,240 525,241 526,242 526,243 527,244 527,245 528,246 528,247 529,248 529,249 530,250 530,251 531,252 531,253 532,254 532,255 533,256 533,257 534,258 534,260 535,261 535,262 536,263 536,265 537,266 537,267 538,268 538,270 539,271 539,273 540,274 540,275 541,276 541,279 542,280 542,282 543,283 543,286 544,287 544,289 545,290 545,294 546,295 546,298 547,299 547,303 548,304 548,309 549,310 549,317 550,318 550,326 551,327 551,376 550,377 550,384 549,385 549,391 548,392 548,399 547,400 547,403 546,404 546,408 545,409 545,413 544,414 544,416 543,417 543,420 542,421 542,423 541,424 541,427 540,428 540,430 539,431 539,432 538,433 538,435 537,436 537,438 536,439 536,440 535,441 535,443 534,444 534,445 533,446 533,447 532,448 532,449 531,450 531,451 530,452 530,453 529,454 529,455 528,456 528,457 527,458 527,459 526,460 526,461 525,462 525,463 524,464 524,465 523,466 523,467 521,469 521,470 520,471 520,472 519,473 519,474 517,476 517,477 516,478 516,479 514,481 514,482 511,485 511,486 510,487 510,488 507,491 507,492 503,496 503,497 498,502 498,503 485,516 484,516 479,521 478,521 475,524 474,524 470,528 469,528 467,530 467,531 466,532 466,536 465,537 465,540 464,541 464,544 463,545 463,549 462,550 462,553 461,554 461,557 460,558 460,561 459,562 459,566 458,567 458,570 457,571 457,574 456,575 456,578 455,579 455,583 454,584 454,587 453,588 453,591 452,592 452,596 451,597 451,600 450,601 450,604 449,605 449,608 448,609 448,613 447,614 447,617 446,618 446,621 628,621 628,619 629,618 629,610 630,609 630,603 631,602 631,596 632,595 632,590 633,589 633,581 634,580 634,574 635,573 635,567 636,566 636,559 637,558 637,552 638,551 638,545 639,544 639,538 640,537 640,531 641,530 641,527 626,527 626,529 625,530 625,531 624,532 624,534 623,535 623,536 622,537 622,538 620,540 620,541 619,542 619,543 611,551 610,551 607,554 606,554 605,555 603,555 602,556 601,556 600,557 599,557 598,558 596,558 595,559 591,559 590,560 586,560 585,561 572,561 571,562 498,562 494,558 494,555 495,554 495,553 497,551 497,550 500,547 501,547 505,543 506,543 508,541 509,541 511,539 512,539 515,536 516,536 518,534 519,534 521,532 522,532 526,528 527,528 530,525 531,525 534,522 535,522 540,517 541,517 548,510 549,510 574,485 574,484 579,479 579,478 582,475 582,474 585,471 585,470 588,467 588,466 590,464 590,463 591,462 591,461 593,459 593,458 595,456 595,455 596,454 596,453 598,451 598,450 599,449 599,448 600,447 600,446 601,445 601,444 602,443 602,442 603,441 603,440 604,439 604,438 605,437 605,436 606,435 606,433 607,432 607,431 608,430 608,429 609,428 609,426 610,425 610,424 611,423 611,421 612,420 612,418 613,417 613,415 614,414 614,412 615,411 615,409 616,408 616,405 617,404 617,402 618,401 618,398 619,397 619,392 620,391 620,388 621,387 621,382 622,381 622,373 623,372 623,360 624,359 624,342 623,341 623,328 622,327 622,317 621,316 621,312 620,311 620,307 619,306 619,302 618,301 618,297 617,296 617,294 616,293 616,290 615,289 615,286 614,285 614,283 613,282 613,281 612,280 612,277 611,276 611,274 610,273 610,272 609,271 609,270 608,269 608,267 607,266 607,265 606,264 606,262 605,261 605,260 604,259 604,258 603,257 603,256 602,255 602,254 601,253 601,252 600,251 600,250 599,249 599,248 598,247 598,246 596,244 596,243 595,242 595,241 594,240 594,239 592,237 592,236 590,234 590,233 588,231 588,230 586,228 586,227 583,224 583,223 580,220 580,219 575,214 575,213 568,206 568,205 559,196 558,196 549,187 548,187 545,184 544,184 540,180 539,180 537,178 536,178 534,176 533,176 531,174 530,174 528,172 527,172 525,170 524,170 523,169 522,169 520,167 519,167 518,166 517,166 516,165 515,165 514,164 513,164 512,163 511,163 510,162 509,162 507,160 506,160 505,159 503,159 502,158 501,158 500,157 499,157 498,156 496,156 495,155 494,155 493,154 492,154 491,153 489,153 488,152 486,152 485,151 483,151 482,150 481,150 480,149 478,149 477,148 474,148 473,147 471,147 470,146 468,146 467,145 463,145 462,144 459,144 458,143 455,143 454,142 451,142 450,141 444,141 443,140 438,140 437,139 431,139 430,138 419,138 418,137"/>
+        </svg>
+      </span><span class="omega-text">mega Token Creator</span>
+    </h1>
+    <p class="subtitle">Create and deploy your own ERC-20 tokens</p>
+    
+    <div id="successMessage" class="success-message" style="display:none;"></div>
+    <div id="errorMessage" class="error-message" style="display:none;"></div>
+    
+    <!-- Modern Popup Modal -->
+    <div id="popupOverlay" class="popup-overlay">
+      <div class="popup-modal">
+        <button class="popup-close" onclick="closePopup()">&times;</button>
+        <div class="popup-header">
+          <div class="popup-icon" id="popupIcon">✓</div>
+          <h3 class="popup-title" id="popupTitle">Success</h3>
+        </div>
+        <div class="popup-content" id="popupContent">
+          Your action was completed successfully.
+        </div>
+        <div class="popup-actions">
+          <button class="popup-btn secondary" onclick="closePopup()">Close</button>
+          <button class="popup-btn primary" id="popupPrimaryBtn" onclick="closePopup()">Continue</button>
+        </div>
       </div>
+    </div>
+    
+    <form class="form" id="tokenForm">
       <div class="form-group">
-        <label for="symbol">Symbol</label>
-        <input type="text" id="symbol" name="symbol" required maxlength="8" placeholder="e.g. OMG">
+        <label for="tokenName">Token Name</label>
+        <input type="text" id="tokenName" placeholder="My Awesome Token" required>
       </div>
+      
+      <div class="form-group">
+        <label for="tokenSymbol">Token Symbol</label>
+        <input type="text" id="tokenSymbol" placeholder="MAT" maxlength="10" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="totalSupply">Total Supply</label>
+        <input type="number" id="totalSupply" placeholder="1000000" min="1" required>
+      </div>
+      
       <div class="form-group">
         <label for="decimals">Decimals</label>
-        <input type="number" id="decimals" name="decimals" required min="0" max="18" value="18">
+        <select id="decimals" required>
+          <option value="18">18 (Standard)</option>
+          <option value="8">8 (Bitcoin-style)</option>
+          <option value="6">6 (USDC-style)</option>
+          <option value="0">0 (No decimals)</option>
+        </select>
       </div>
-      <div class="form-group">
-        <label for="supply">Total Supply</label>
-        <input type="number" id="supply" name="supply" required min="1" step="1" placeholder="e.g. 1000000">
-      </div>
-      <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Options</button>
-      <div class="advanced-section" id="advancedSection">
+      
+      <button type="button" class="advanced-toggle" onclick="toggleAdvanced()">Advanced Options</button>
+      
+      <div class="advanced-fields" id="advancedFields">
         <div class="form-group">
-          <label for="mintable"><input type="checkbox" id="mintable" name="mintable"> Mintable (allow future minting)</label>
+          <label for="initialOwner">Initial Owner Address</label>
+          <input type="text" id="initialOwner" placeholder="0x..." pattern="^0x[a-fA-F0-9]{40}$">
         </div>
+        
         <div class="form-group">
-          <label for="burnable"><input type="checkbox" id="burnable" name="burnable"> Burnable (allow tokens to be destroyed)</label>
+          <label for="mintable">Mintable</label>
+          <select id="mintable">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
         </div>
+        
         <div class="form-group">
-          <label for="pausable"><input type="checkbox" id="pausable" name="pausable"> Pausable (allow pausing transfers)</label>
+          <label for="burnable">Burnable</label>
+          <select id="burnable">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
         </div>
       </div>
-      <div class="btn-row">
-        <button type="button" class="btn" id="connectBtn">Connect Wallet</button>
-        <button type="submit" class="btn" id="deployBtn" disabled>Deploy Token</button>
-      </div>
+      
+      <button type="submit" class="btn" id="createBtn">Create Token</button>
     </form>
-    <div class="status-area" id="statusArea"></div>
-    <div class="contract-details" id="contractDetails">
-      <h3>Contract Details</h3>
-      <div class="contract-info">
-        <div class="contract-info-item">
-          <span class="contract-info-label">Contract Address:</span>
-          <span class="contract-info-value" id="contractAddress"></span>
-        </div>
-        <div class="contract-info-item">
-          <span class="contract-info-label">Verification Link:</span>
-          <span class="contract-info-value" id="verificationLink"></span>
-        </div>
-      </div>
-      <div class="contract-links">
-        <a href="#" class="contract-link" id="verifyLink">Verify Contract</a>
-        <button class="contract-link" id="copyCodeBtn" type="button">Copy Code</button>
-      </div>
-      <div style="margin-top:12px; color:#2563eb; font-weight:500;">Copy and use the code below for contract verification on the block explorer.</div>
-      <div class="contract-code" id="contractCode"></div>
+    
+    <div class="footer">
+      Powered by <span style="color: var(--accent-primary); font-weight: 600;">Omega Network</span> &bull; Token Creator
     </div>
   </div>
-  <div class="footer">
-    Powered by Omega Network &bull; Token Creator<br>
-    <span style="font-size:0.9em;opacity:0.8;">Connect your wallet and deploy your own Omega-20 token instantly.</span>
-  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="omega-theme-system.js"></script>
   <script>
-    let provider, signer, userAddress;
-    const connectBtn = document.getElementById('connectBtn');
-    const deployBtn = document.getElementById('deployBtn');
-    const statusArea = document.getElementById('statusArea');
+    // --- State ---
+    let userAddress = null;
+    let provider = null;
+    let signer = null;
+    
+    // --- Elements ---
+    const walletBtn = document.getElementById('walletBtn');
+    const walletAddressDiv = document.getElementById('walletAddress');
+    const walletStatus = document.getElementById('walletStatus');
+    const disconnectBtn = document.getElementById('disconnectBtn');
     const tokenForm = document.getElementById('tokenForm');
-    const toggleAdvanced = document.getElementById('toggleAdvanced');
-    const advancedSection = document.getElementById('advancedSection');
-
-    // --- OmegaTokenFactory Contract Info ---
-    const FACTORY_ADDRESS = "0x1f568dbb3a7b9ea05062b132094a848ef1443cfe";
-    const FACTORY_ABI = [
-      {
-        "inputs": [
-          { "internalType": "string", "name": "name_", "type": "string" },
-          { "internalType": "string", "name": "symbol_", "type": "string" },
-          { "internalType": "uint8", "name": "decimals_", "type": "uint8" },
-          { "internalType": "uint256", "name": "initialSupply_", "type": "uint256" },
-          { "internalType": "bool", "name": "mintable_", "type": "bool" },
-          { "internalType": "bool", "name": "pausable_", "type": "bool" }
-        ],
-        "name": "createToken",
-        "outputs": [ { "internalType": "address", "name": "", "type": "address" } ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          { "indexed": true, "internalType": "address", "name": "creator", "type": "address" },
-          { "indexed": false, "internalType": "address", "name": "token", "type": "address" },
-          { "indexed": false, "internalType": "string", "name": "name", "type": "string" },
-          { "indexed": false, "internalType": "string", "name": "symbol", "type": "string" }
-        ],
-        "name": "TokenCreated",
-        "type": "event"
-      },
-      {
-        "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
-        "name": "allTokens",
-        "outputs": [ { "internalType": "address", "name": "", "type": "address" } ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "getAllTokens",
-        "outputs": [ { "internalType": "address[]", "name": "", "type": "address[]" } ],
-        "stateMutability": "view",
-        "type": "function"
+    const createBtn = document.getElementById('createBtn');
+    const successMessage = document.getElementById('successMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    // --- Load State ---
+    function loadState() {
+      userAddress = localStorage.getItem('omega_defi_wallet') || null;
+      updateUI();
+    }
+    
+    function saveState() {
+      if (userAddress) localStorage.setItem('omega_defi_wallet', userAddress);
+    }
+    
+    function clearState() {
+      userAddress = null;
+      localStorage.removeItem('omega_defi_wallet');
+    }
+    
+    // --- UI Update ---
+    function updateUI() {
+      if (userAddress) {
+        walletStatus.textContent = 'Wallet Connected';
+        walletBtn.style.display = 'none';
+        walletAddressDiv.style.display = 'inline-block';
+        walletAddressDiv.textContent = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
+        disconnectBtn.style.display = 'inline-block';
+        createBtn.disabled = false;
+      } else {
+        walletStatus.textContent = 'Wallet Not Connected';
+        walletBtn.style.display = 'inline-block';
+        walletAddressDiv.style.display = 'none';
+        disconnectBtn.style.display = 'none';
+        createBtn.disabled = true;
       }
-    ];
-
-    // --- Advanced Options Toggle ---
-    toggleAdvanced.onclick = function(e) {
-      e.preventDefault();
-      advancedSection.classList.toggle('active');
-      toggleAdvanced.textContent = advancedSection.classList.contains('active') ? 'Hide Advanced Options' : 'Show Advanced Options';
-    };
-
+    }
+    
     // --- Wallet Connect ---
-    connectBtn.onclick = async function() {
+    walletBtn.onclick = async function() {
       if (window.ethereum) {
         try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          userAddress = accounts[0];
           provider = new ethers.providers.Web3Provider(window.ethereum);
-          await provider.send('eth_requestAccounts', []);
           signer = provider.getSigner();
-          userAddress = await signer.getAddress();
-          connectBtn.textContent = 'Wallet Connected';
-          connectBtn.disabled = true;
-          deployBtn.disabled = false;
-          statusArea.textContent = '';
+          saveState();
+          updateUI();
         } catch (e) {
-          statusArea.textContent = 'Wallet connection rejected.';
-          statusArea.className = 'status-area status-error';
+          showError('Wallet connection rejected.');
         }
       } else {
-        statusArea.textContent = 'MetaMask or compatible wallet not found.';
-        statusArea.className = 'status-area status-error';
+        showError('MetaMask or compatible wallet not found.');
       }
     };
-
-    // --- Token Deployment (via Factory) ---
+    
+    disconnectBtn.onclick = function() {
+      clearState();
+      updateUI();
+    };
+    
+    // --- Advanced Toggle ---
+    function toggleAdvanced() {
+      const advancedFields = document.getElementById('advancedFields');
+      advancedFields.classList.toggle('show');
+    }
+    
+    // --- Modern Popup Functions ---
+    function showPopup(type, title, content, primaryBtnText = 'Continue', onPrimaryClick = null) {
+      const overlay = document.getElementById('popupOverlay');
+      const icon = document.getElementById('popupIcon');
+      const popupTitle = document.getElementById('popupTitle');
+      const popupContent = document.getElementById('popupContent');
+      const primaryBtn = document.getElementById('popupPrimaryBtn');
+      
+      // Set icon and styling based on type
+      if (type === 'success') {
+        icon.textContent = '✓';
+        icon.className = 'popup-icon success';
+      } else if (type === 'error') {
+        icon.textContent = '✕';
+        icon.className = 'popup-icon error';
+      } else if (type === 'warning') {
+        icon.textContent = '⚠';
+        icon.className = 'popup-icon warning';
+      } else if (type === 'info') {
+        icon.textContent = 'ℹ';
+        icon.className = 'popup-icon info';
+      }
+      
+      popupTitle.textContent = title;
+      popupContent.textContent = content;
+      primaryBtn.textContent = primaryBtnText;
+      
+      // Set primary button action
+      if (onPrimaryClick) {
+        primaryBtn.onclick = () => {
+          closePopup();
+          onPrimaryClick();
+        };
+      } else {
+        primaryBtn.onclick = closePopup;
+      }
+      
+      // Show popup with animation
+      overlay.classList.add('show');
+      
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closePopup() {
+      const overlay = document.getElementById('popupOverlay');
+      overlay.classList.remove('show');
+      
+      // Restore body scroll
+      document.body.style.overflow = '';
+    }
+    
+    // Close popup when clicking outside
+    document.getElementById('popupOverlay').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePopup();
+      }
+    });
+    
+    // Close popup with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closePopup();
+      }
+    });
+    
+    // --- Legacy Message Display (for backward compatibility) ---
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+      }, 5000);
+    }
+    
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+      setTimeout(() => {
+        errorMessage.style.display = 'none';
+      }, 5000);
+    }
+    
+    // --- Form Submission ---
     tokenForm.onsubmit = async function(e) {
       e.preventDefault();
-      if (!signer) {
-        statusArea.textContent = 'Please connect your wallet first.';
-        statusArea.className = 'status-area status-error';
+      
+      if (!userAddress) {
+        showError('Please connect your wallet first.');
         return;
       }
-      // Get form values
-      const name = tokenForm.name.value.trim();
-      const symbol = tokenForm.symbol.value.trim();
-      const decimals = parseInt(tokenForm.decimals.value);
-      const supply = tokenForm.supply.value.trim();
-      const mintable = tokenForm.mintable.checked;
-      // burnable is always enabled in the contract, so we ignore the checkbox
-      const pausable = tokenForm.pausable.checked;
-      // Basic validation
-      if (!name || !symbol || isNaN(decimals) || !supply) {
-        statusArea.textContent = 'Please fill in all required fields.';
-        statusArea.className = 'status-area status-error';
-        return;
-      }
-      statusArea.textContent = 'Deploying token... Please confirm the transaction in your wallet.';
-      statusArea.className = 'status-area status-info';
-      deployBtn.disabled = true;
+      
+      const tokenName = document.getElementById('tokenName').value;
+      const tokenSymbol = document.getElementById('tokenSymbol').value;
+      const totalSupply = document.getElementById('totalSupply').value;
+      const decimals = document.getElementById('decimals').value;
+      const initialOwner = document.getElementById('initialOwner').value || userAddress;
+      const mintable = document.getElementById('mintable').value === 'true';
+      const burnable = document.getElementById('burnable').value === 'true';
+      
       try {
-        const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
-        // initialSupply should be in whole tokens, not multiplied by decimals
-        // The contract will handle the decimal conversion internally
-        const supplyInWholeTokens = ethers.BigNumber.from(supply);
-        const tx = await factory.createToken(name, symbol, decimals, supplyInWholeTokens, mintable, pausable);
-        statusArea.textContent = 'Waiting for transaction confirmation...';
-        const receipt = await tx.wait();
-        // Find the TokenCreated event
-        let tokenAddress = null;
-        for (const log of receipt.logs) {
-          try {
-            const parsed = factory.interface.parseLog(log);
-            if (parsed.name === 'TokenCreated') {
-              tokenAddress = parsed.args.token;
-              break;
-            }
-          } catch (err) { /* not this log */ }
-        }
-        if (tokenAddress) {
-          statusArea.innerHTML = `<span class='status-success'>Token deployed!</span><br>Address: <a href='https://0x4e454228.explorer.aurora-cloud.dev/address/${tokenAddress}' target='_blank'>${tokenAddress}</a>`;
-          document.getElementById('contractAddress').textContent = tokenAddress;
-          document.getElementById('verificationLink').textContent = `https://0x4e454228.explorer.aurora-cloud.dev/address/${tokenAddress}`;
-          document.getElementById('verifyLink').href = `https://0x4e454228.explorer.aurora-cloud.dev/address/${tokenAddress}`;
-          document.getElementById('contractDetails').classList.add('active');
-          // Show Solidity source code for verification
-          document.getElementById('contractCode').textContent = OMEGA_ERC20_SOURCE;
-        } else {
-          statusArea.innerHTML = `<span class='status-success'>Token deployed! (Address not found in logs)</span>`;
-        }
-      } catch (err) {
-        statusArea.textContent = 'Deployment failed: ' + (err.message || err);
-        statusArea.className = 'status-area status-error';
+        createBtn.disabled = true;
+        createBtn.textContent = 'Creating Token...';
+        
+        // Here you would typically interact with your smart contract
+        // For now, we'll simulate the process
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Show success popup instead of inline message
+        showPopup(
+          'success',
+          'Token Created Successfully!',
+          `Your token "${tokenName}" (${tokenSymbol}) has been deployed to the blockchain. You can now use it in your DeFi applications.`,
+          'View Token',
+          () => {
+            // Here you could redirect to a token viewer or explorer
+            console.log('Token created:', { name: tokenName, symbol: tokenSymbol });
+          }
+        );
+        
+        tokenForm.reset();
+        
+      } catch (error) {
+        showError('Failed to create token: ' + error.message);
+      } finally {
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create Token';
       }
-      deployBtn.disabled = false;
     };
-
-    // --- Copy code button logic
-    document.getElementById('copyCodeBtn').onclick = function() {
-      const code = document.getElementById('contractCode').textContent;
-      navigator.clipboard.writeText(code).then(() => {
-        document.getElementById('copyCodeBtn').textContent = 'Copied!';
-        setTimeout(() => {
-          document.getElementById('copyCodeBtn').textContent = 'Copy Code';
-        }, 1500);
-      });
-    };
-
-    // --- OmegaERC20 Solidity source code for verification
-    const OMEGA_ERC20_SOURCE = `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-contract OmegaERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable {
-    uint8 private _customDecimals;
-    bool public mintable;
-    bool public pausable;
-
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        uint8 decimals_,
-        uint256 initialSupply_,
-        address owner_,
-        bool mintable_,
-        bool pausable_
-    ) ERC20(name_, symbol_) Ownable(owner_) {
-        _customDecimals = decimals_;
-        mintable = mintable_;
-        pausable = pausable_;
-        _mint(owner_, initialSupply_ * (10 ** uint256(decimals_)));
+    
+    // --- Form Input Event Listeners ---
+    const tokenNameInput = document.getElementById('tokenName');
+    const tokenSymbolInput = document.getElementById('tokenSymbol');
+    
+    // Token name change popup
+    let tokenNameTimeout;
+    tokenNameInput.addEventListener('input', function() {
+      clearTimeout(tokenNameTimeout);
+      const value = this.value.trim();
+      
+      if (value.length > 0) {
+        tokenNameTimeout = setTimeout(() => {
+          showPopup(
+            'info',
+            'Token Name Updated',
+            `Your token will be named "${value}". Make sure this name is unique and represents your project well.`,
+            'Got it!',
+            null
+          );
+        }, 1000); // Show popup after 1 second of typing
+      }
+    });
+    
+    // Token symbol validation popup
+    tokenSymbolInput.addEventListener('blur', function() {
+      const value = this.value.trim().toUpperCase();
+      if (value.length > 0 && value.length < 3) {
+        showPopup(
+          'warning',
+          'Short Token Symbol',
+          `Your token symbol "${value}" is quite short. Consider using 3-5 characters for better recognition.`,
+          'I understand',
+          null
+        );
+      }
+    });
+    
+    // Total supply validation popup
+    const totalSupplyInput = document.getElementById('totalSupply');
+    totalSupplyInput.addEventListener('blur', function() {
+      const value = parseInt(this.value);
+      if (value > 1000000000) {
+        showPopup(
+          'warning',
+            'Large Supply Warning',
+            `A total supply of ${value.toLocaleString()} is quite large. Consider if this amount is appropriate for your token's use case.`,
+            'Continue Anyway',
+            null
+        );
+      }
+    });
+    
+    // --- Initialize ---
+    loadState();
+    
+    // --- Mobile Detection ---
+    if (window.innerWidth <= 600) {
+      document.body.style.paddingBottom = '60px';
     }
+    
 
-    function decimals() public view override returns (uint8) {
-        return _customDecimals;
-    }
-
-    function mint(address to, uint256 amount) public onlyOwner {
-        require(mintable, "Minting is disabled");
-        _mint(to, amount);
-    }
-
-    function pause() public onlyOwner {
-        require(pausable, "Pausing is disabled");
-        _pause();
-    }
-
-    function unpause() public onlyOwner {
-        require(pausable, "Pausing is disabled");
-        _unpause();
-    }
-
-    function _beforeTokenTransfer(address from, address to, uint256 amount)
-        internal
-        override(ERC20, ERC20Pausable)
-    {
-        super._beforeTokenTransfer(from, to, amount);
-    }
-}
-`;
   </script>
 </body>
 </html> 

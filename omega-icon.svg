@@ -1,0 +1,12 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="omegaGradientSmall" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff88"/>
+      <stop offset="100%" style="stop-color:#00d4ff"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Classic Greek Omega symbol (Ω) -->
+  <path d="M7 9 C7 9, 9 9, 16 9 C23 9, 25 9, 25 9 L25 12 L21 12 L21 13 L25 13 L21 21 L16 21 L11 21 L7 13 L11 13 L11 12 L7 12 Z" 
+        fill="url(#omegaGradientSmall)"/>
+</svg> 

@@ -3,546 +3,636 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Omega Swap</title>
-  <link rel="stylesheet" href="css/main.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+  <title>Token Swap - Omega DeFi</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="omega-theme-system.js"></script>
+  <link rel="stylesheet" href="styles.css">
   <style>
-    body {
-      background: #fff;
-      color: #111;
-      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-    }
-    .header {
-      background: #111;
-      color: #fff;
-      padding: 1.5rem 0 2.5rem 0;
-      text-align: center;
-      font-size: 2rem;
-      letter-spacing: 2px;
-      font-weight: 700;
-      position: relative;
-    }
-    .wallet-btn-top {
-      position: absolute;
-      top: 50%;
-      right: 2.5rem;
-      transform: translateY(-50%);
-      background: #fff;
-      color: #111;
-      border: 2px solid #111;
-      border-radius: 1rem;
-      font-size: 1rem;
-      font-weight: 600;
-      padding: 0.7rem 1.5rem;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-    }
-    .wallet-btn-top:hover {
-      background: #111;
-      color: #fff;
-    }
-    .disconnect-btn {
-      background: #fff;
-      color: #111;
-      border: 2px solid #111;
-      border-radius: 1rem;
-      font-size: 1rem;
-      font-weight: 600;
-      padding: 0.7rem 1.2rem;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    .disconnect-btn:hover {
-      background: #111;
-      color: #fff;
-    }
-    .omega-symbol {
-      font-family: 'Montserrat', 'Inter', Arial, sans-serif;
-      font-size: 5.5rem;
-      font-weight: 900;
-      color: #111;
-      margin: 3.5rem 0 2.5rem 0;
-      text-align: center;
-      letter-spacing: 0.15em;
-      line-height: 1;
-      user-select: none;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
+    /* Page-specific styles */
     .swap-container {
-      max-width: 420px;
+      max-width: 480px;
       margin: 1.5rem auto 3rem auto;
-      background: #fff;
-      border-radius: 1.5rem;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+      background: var(--bg-card);
+      border: 1px solid var(--border-primary);
+      border-radius: 20px;
+      box-shadow: var(--shadow-secondary);
       padding: 2.5rem 2rem 2rem 2rem;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
       align-items: center;
+      backdrop-filter: blur(20px);
     }
+    
     .swap-title {
       text-align: center;
       font-size: 2.1rem;
       font-weight: 700;
       margin-bottom: 1.5rem;
       letter-spacing: 0.04em;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
+    
     .swap-panel {
       width: 100%;
       display: flex;
       flex-direction: column;
       gap: 1.2rem;
-      align-items: center;
     }
-    .token-row {
-      width: 100%;
-      background: #fafbfc;
-      border-radius: 1rem;
-      border: 1.5px solid #111;
+    
+    .swap-input-group {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .swap-input-group:hover {
+      border-color: var(--border-secondary);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .swap-input-group:focus-within {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+    }
+    
+    .swap-input-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .swap-input-row {
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 1.1rem 1.2rem;
-      margin-bottom: 0.2rem;
-      position: relative;
     }
-    .token-select {
+    
+    .swap-input {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-    .token-label {
-      font-size: 0.95rem;
-      color: #555;
-      margin-bottom: 0.2rem;
-    }
-    .token-input {
-      font-size: 1.2rem;
-      border: none;
       background: transparent;
-      outline: none;
-      color: #111;
-      font-weight: 500;
-      width: 100%;
-    }
-    .token-dropdown {
-      background: #f0f0f0;
-      border: 1px solid #ccc;
-      color: #111;
-      border-radius: 0.7rem;
-      padding: 0.4rem 1.2rem;
-      font-size: 1rem;
+      border: none;
+      font-size: 1.5rem;
       font-weight: 600;
-      cursor: pointer;
-      margin-left: 1rem;
-      min-width: 90px;
+      color: var(--text-primary);
+      outline: none;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0.5rem 0;
+      min-width: 0;
     }
-    .swap-arrow {
-      text-align: center;
-      font-size: 2.2rem;
-      color: #111;
-      margin: 0.5rem 0;
+    
+    .swap-input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+    
+    .swap-input:focus {
+      color: var(--accent-primary);
+    }
+    
+    .token-selector {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-secondary);
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
       cursor: pointer;
-      user-select: none;
-      border-radius: 50%;
-      width: 2.2rem;
-      height: 2.2rem;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      color: var(--text-primary);
+      min-width: 100px;
+      text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      align-self: center;
-      background: #f0f0f0;
-      border: 1.5px solid #111;
-      transition: background 0.1s, color 0.1s;
+      gap: 0.5rem;
+      position: relative;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
     }
-    .swap-arrow:hover {
-      background: #e3e8ee;
+    
+    .token-selector:hover {
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+      border-color: var(--accent-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 255, 136, 0.2);
     }
-    .balance-row {
-      font-size: 0.98rem;
-      color: #555;
-      margin-bottom: 0.2rem;
-      text-align: right;
-      width: 100%;
+    
+    .token-selector::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid currentColor;
+      margin-left: 0.25rem;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
     }
+    
+    .token-selector:hover::after {
+      opacity: 1;
+    }
+    
+    .token-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    
+    .token-icon.omega {
+      background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 212, 255, 0.2));
+      border: 1px solid var(--accent-primary);
+      color: var(--accent-primary);
+    }
+    
+    .token-icon.arcade {
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 69, 58, 0.2));
+      border: 1px solid #ff6b35;
+      color: #ff6b35;
+    }
+    
+    .token-icon.eth {
+      background: linear-gradient(135deg, rgba(101, 115, 255, 0.2), rgba(111, 76, 255, 0.2));
+      border: 1px solid #6573ff;
+      color: #6573ff;
+    }
+    
+    .token-icon.usdc {
+      background: linear-gradient(135deg, rgba(0, 122, 255, 0.2), rgba(0, 199, 190, 0.2));
+      border: 1px solid #007aff;
+      color: #007aff;
+    }
+    
+    .swap-arrow {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    
+    .swap-arrow-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .swap-arrow-btn:hover {
+      background: var(--accent-primary);
+      transform: rotate(180deg);
+    }
+    
+    .swap-arrow-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-primary);
+    }
+    
+    .swap-arrow-btn:hover svg {
+      color: var(--bg-primary);
+    }
+    
+    .swap-info {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+    
+    .swap-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      font-size: 0.9rem;
+    }
+    
+    .swap-info-row:last-child {
+      margin-bottom: 0;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--border-secondary);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    
+    .swap-info-label {
+      color: var(--text-secondary);
+    }
+    
+    .swap-info-value {
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
     .swap-btn {
       width: 100%;
-      background: #111;
-      color: #fff;
+      background: var(--gradient-primary);
+      color: var(--bg-primary);
       border: none;
-      border-radius: 1rem;
+      border-radius: 12px;
       font-size: 1.2rem;
       font-weight: 700;
       padding: 1rem;
       cursor: pointer;
-      margin-top: 0.5rem;
-      transition: opacity 0.2s;
-      opacity: 1;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      margin-top: 1rem;
     }
+    
+    .swap-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary);
+    }
+    
     .swap-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
     }
-    #swap-status {
-      margin-top: 1.2rem;
-      font-size: 1.1rem;
-      text-align: center;
-      min-height: 1.5em;
+    
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 0.5em;
+      gap: 8px;
     }
-    .status-success {
-      color: #1ca64c;
-      font-weight: 600;
+    
+    .back-btn:hover {
+      background: var(--bg-tertiary);
+      transform: translateY(-1px);
     }
-    .status-error {
-      color: #c00;
-      font-weight: 600;
-    }
-    .status-success::before {
-      content: '✅';
-      margin-right: 0.3em;
-    }
-    .status-error::before {
-      content: '❌';
-      margin-right: 0.3em;
-    }
-    .footer {
+    
+    .success-message {
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid var(--accent-primary);
+      color: var(--accent-primary);
+      padding: 1rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      font-weight: 500;
       text-align: center;
-      color: #aaa;
-      font-size: 0.95rem;
-      margin: 2.5rem 0 1rem 0;
+      width: 100%;
     }
-    @media (max-width: 600px) {
+    
+    .error-message {
+      background: rgba(255, 59, 48, 0.1);
+      border: 1px solid #ff3b30;
+      color: #ff3b30;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      font-weight: 500;
+      text-align: center;
+      width: 100%;
+    }
+    
+    @media (max-width: 700px) {
       .swap-container {
-        padding: 1.2rem 0.5rem;
+        margin: 1rem;
+        padding: 1.5rem 1rem;
       }
-      .wallet-btn-top {
-        right: 1rem;
-        top: 50%;
-        padding: 0.6rem 1.1rem;
-        font-size: 0.95rem;
+      
+      .swap-title {
+        font-size: 1.8rem;
       }
-      .omega-symbol {
-        font-size: 2.5rem;
+      
+      .swap-input {
+        font-size: 1.3rem;
       }
-      .token-row, .swap-btn {
-        width: 95%;
+      
+      .token-selector {
+        min-width: 90px;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .token-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+      }
+      
+      .swap-input-row {
+        gap: 0.75rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .swap-container {
+        padding: 1rem;
+        margin: 0.5rem;
+      }
+      
+      .swap-input-group {
+        padding: 1rem;
+      }
+      
+      .token-selector {
+        min-width: 80px;
+        padding: 0.5rem 0.75rem;
       }
     }
   </style>
 </head>
 <body>
-  <script src="https://app.auroracloud.dev/dashboard/solar-studios/silos/307/widgets/forwarder.js"></script>
-  <div class="header">
-    Omega Swap
-    <button class="wallet-btn-top">Connect Wallet</button>
+  <div class="container">
+    <!-- Wallet Panel -->
+    <div class="wallet-panel" id="walletPanel" style="display: none;">
+      <div class="wallet-info">
+        <div class="wallet-status">Connected</div>
+        <div class="wallet-address" id="walletAddress"></div>
+      </div>
+      <button class="wallet-action-btn" onclick="disconnectWallet()">Disconnect</button>
+      <a href="https://omeganetwork.co" class="wallet-action-btn home-btn" title="Go to Omega Network">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <a href="index.html" class="back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back
+    </a>
+
+    <div class="swap-container">
+      <h1 class="omega-title">
+        <span class="omega-symbol">
+          <svg width="32" height="32" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#00ff88"/>
+                <stop offset="100%" style="stop-color:#00d4ff"/>
+              </linearGradient>
+            </defs>
+            <polygon fill="url(#titleGradient)" points="387,137 386,138 372,138 371,139 364,139 363,140 358,140 357,141 351,141 350,142 347,142 346,143 343,143 342,144 338,144 337,145 334,145 333,146 331,146 330,147 327,147 326,148 324,148 323,149 320,149 319,150 318,150 317,151 315,151 314,152 312,152 311,153 310,153 309,154 307,154 306,155 305,155 304,156 302,156 301,157 300,157 299,158 298,158 297,159 295,159 294,160 293,160 292,161 291,161 290,162 289,162 288,163 287,163 286,164 285,164 283,166 282,166 281,167 280,167 279,168 278,168 277,169 276,169 274,171 273,171 271,173 270,173 268,175 267,175 266,176 265,176 263,178 262,178 259,181 258,181 255,184 254,184 251,187 250,187 244,193 243,193 228,208 228,209 220,217 220,218 217,221 217,222 214,225 214,226 212,228 212,229 210,231 210,232 208,234 208,235 206,237 206,238 205,239 205,240 203,242 203,243 202,244 202,245 201,246 201,247 199,249 199,250 198,251 198,252 197,253 197,254 196,255 196,256 195,257 195,258 194,259 194,261 193,262 193,263 192,264 192,265 191,266 191,268 190,269 190,270 189,271 189,273 188,274 188,276 187,277 187,279 186,280 186,281 185,282 185,285 184,286 184,289 183,290 183,292 182,293 182,296 181,297 181,300 180,301 180,306 179,307 179,310 178,311 178,317 177,318 177,328 176,329 176,368 177,369 177,379 178,380 178,385 179,386 179,390 180,391 180,396 181,397 181,400 182,401 182,404 183,405 183,407 184,408 184,411 185,412 185,414 186,415 186,417 187,418 187,420 188,421 188,423 189,424 189,425 190,426 190,427 191,428 191,430 192,431 192,432 193,433 193,435 194,436 194,437 195,438 195,439 196,440 196,441 197,442 197,443 198,444 198,445 199,446 199,447 201,449 201,450 202,451 202,452 203,453 203,454 205,456 205,457 206,458 206,459 208,461 208,462 210,464 210,465 212,467 212,468 214,470 214,471 218,475 218,476 223,481 223,482 228,487 228,488 248,508 249,508 255,514 256,514 257,515 257,516 258,516 261,519 262,519 266,523 267,523 271,527 272,527 276,531 277,531 279,533 280,533 283,536 284,536 286,538 287,538 289,540 290,540 293,543 294,543 298,547 299,547 301,549 301,550 304,553 304,554 305,555 305,558 301,562 226,562 225,561 213,561 212,560 208,560 207,559 203,559 202,558 200,558 199,557 197,557 196,556 195,556 194,555 193,555 191,553 190,553 187,550 186,550 182,546 182,545 179,542 179,541 177,539 177,538 176,537 176,536 175,535 175,534 174,533 174,531 173,530 173,529 172,528 172,527 156,527 157,528 157,532 158,533 158,539 159,540 159,547 160,548 160,554 161,555 161,559 162,560 162,566 163,567 162,568 163,569 163,575 164,576 164,582 165,583 165,588 166,589 166,597 167,598 167,603 168,604 168,609 169,610 169,616 170,617 170,621 354,621 354,617 353,616 353,614 352,613 352,610 351,609 351,605 350,604 350,601 349,600 349,597 348,596 348,593 347,592 347,588 346,587 346,584 345,583 345,581 344,580 344,576 343,575 343,572 342,571 342,568 341,567 341,563 340,562 340,559 339,558 339,555 338,554 338,552 337,551 337,547 336,546 336,542 335,541 335,539 334,538 334,535 333,534 333,532 332,531 332,530 330,528 329,528 327,526 326,526 321,521 320,521 298,499 298,498 293,493 293,492 290,489 290,488 288,486 288,485 286,483 286,482 284,480 284,479 282,477 282,476 280,474 280,473 279,472 279,471 278,470 278,469 276,467 276,466 275,465 275,464 274,463 274,462 273,461 273,460 272,459 272,458 271,457 271,456 270,455 270,454 269,453 269,452 268,451 268,450 267,449 267,448 266,447 266,445 265,444 265,443 264,442 264,440 263,439 263,438 262,437 262,435 261,434 261,432 260,431 260,430 259,429 259,427 258,426 258,423 257,422 257,420 256,419 256,417 255,416 255,413 254,412 254,408 253,407 253,404 252,403 252,399 251,398 251,392 250,391 250,385 249,384 249,377 248,376 248,360 247,359 247,343 248,342 248,328 249,327 249,319 250,318 250,310 251,309 251,302 252,301 252,298 253,297 253,293 254,292 254,289 255,288 255,285 256,284 256,282 257,281 257,279 258,278 258,276 259,275 259,273 260,272 260,270 261,269 261,268 262,267 262,265 263,264 263,263 264,262 264,260 265,259 265,258 266,257 266,256 267,255 267,254 268,253 268,252 269,251 269,250 270,249 270,248 271,247 271,246 272,245 272,244 273,243 273,242 274,241 274,240 276,238 276,237 277,236 277,235 279,233 279,232 281,230 281,229 283,227 283,226 285,224 285,223 288,220 288,219 293,214 293,213 311,195 312,195 317,190 318,190 321,187 322,187 324,185 325,185 326,184 327,184 329,182 330,182 331,181 332,181 333,180 334,180 335,179 336,179 338,177 339,177 340,176 342,176 343,175 344,175 345,174 346,174 347,173 348,173 349,172 351,172 352,171 353,171 354,170 356,170 357,169 359,169 360,168 363,168 364,167 366,167 367,166 370,166 371,165 375,165 376,164 380,164 381,163 387,163 388,162 410,162 411,163 416,163 417,164 422,164 423,165 428,165 429,166 432,166 433,167 435,167 436,168 439,168 440,169 442,169 443,170 445,170 446,171 447,171 448,172 450,172 451,173 452,173 453,174 454,174 455,175 457,175 458,176 459,176 460,177 461,177 463,179 464,179 465,180 466,180 467,181 468,181 469,182 470,182 473,185 474,185 475,186 476,186 479,189 480,189 482,191 483,191 488,196 489,196 506,213 506,214 510,218 510,219 513,222 513,223 516,226 516,227 518,229 518,230 520,232 520,233 522,235 522,236 523,237 523,238 525,240 525,241 526,242 526,243 527,244 527,245 528,246 528,247 529,248 529,249 530,250 530,251 531,252 531,253 532,254 532,255 533,256 533,257 534,258 534,260 535,261 535,262 536,263 536,265 537,266 537,267 538,268 538,270 539,271 539,273 540,274 540,275 541,276 541,279 542,280 542,282 543,283 543,286 544,287 544,289 545,290 545,294 546,295 546,298 547,299 547,303 548,304 548,309 549,310 549,317 550,318 550,326 551,327 551,376 550,377 550,384 549,385 549,391 548,392 548,399 547,400 547,403 546,404 546,408 545,409 545,413 544,414 544,416 543,417 543,420 542,421 542,423 541,424 541,427 540,428 540,430 539,431 539,432 538,433 538,435 537,436 537,438 536,439 536,440 535,441 535,443 534,444 534,445 533,446 533,447 532,448 532,449 531,450 531,451 530,452 530,453 529,454 529,455 528,456 528,457 527,458 527,459 526,460 526,461 525,462 525,463 524,464 524,465 523,466 523,467 521,469 521,470 520,471 520,472 519,473 519,474 517,476 517,477 516,478 516,479 514,481 514,482 511,485 511,486 510,487 510,488 507,491 507,492 503,496 503,497 498,502 498,503 485,516 484,516 479,521 478,521 475,524 474,524 470,528 469,528 467,530 467,531 466,532 466,536 465,537 465,540 464,541 464,544 463,545 463,549 462,550 462,553 461,554 461,557 460,558 460,561 459,562 459,566 458,567 458,570 457,571 457,574 456,575 456,578 455,579 455,583 454,584 454,587 453,588 453,591 452,592 452,596 451,597 451,600 450,601 450,604 449,605 449,608 448,609 448,613 447,614 447,617 446,618 446,621 628,621 628,619 629,618 629,610 630,609 630,603 631,602 631,596 632,595 632,590 633,589 633,581 634,580 634,574 635,573 635,567 636,566 636,559 637,558 637,552 638,551 638,545 639,544 639,538 640,537 640,531 641,530 641,527 626,527 626,529 625,530 625,531 624,532 624,534 623,535 623,536 622,537 622,538 620,540 620,541 619,542 619,543 611,551 610,551 607,554 606,554 605,555 603,555 602,556 601,556 600,557 599,557 598,558 596,558 595,559 591,559 590,560 586,560 585,561 572,561 571,562 498,562 494,558 494,555 495,554 495,553 497,551 497,550 500,547 501,547 505,543 506,543 508,541 509,541 511,539 512,539 515,536 516,536 518,534 519,534 521,532 522,532 526,528 527,528 530,525 531,525 534,522 535,522 540,517 541,517 548,510 549,510 574,485 574,484 579,479 579,478 582,475 582,474 585,471 585,470 588,467 588,466 590,464 590,463 591,462 591,461 593,459 593,458 595,456 595,455 596,454 596,453 598,451 598,450 599,449 599,448 600,447 600,446 601,445 601,444 602,443 602,442 603,441 603,440 604,439 604,438 605,437 605,436 606,435 606,433 607,432 607,431 608,430 608,429 609,428 609,426 610,425 610,424 611,423 611,421 612,420 612,418 613,417 613,415 614,414 614,412 615,411 615,409 616,408 616,405 617,404 617,402 618,401 618,398 619,397 619,392 620,391 620,388 621,387 621,382 622,381 622,373 623,372 623,360 624,359 624,342 623,341 623,328 622,327 622,317 621,316 621,312 620,311 620,307 619,306 619,302 618,301 618,297 617,296 617,294 616,293 616,290 615,289 615,286 614,285 614,283 613,282 613,281 612,280 612,277 611,276 611,274 610,273 610,272 609,271 609,270 608,269 608,267 607,266 607,265 606,264 606,262 605,261 605,260 604,259 604,258 603,257 603,256 602,255 602,254 601,253 601,252 600,251 600,250 599,249 599,248 598,247 598,246 596,244 596,243 595,242 595,241 594,240 594,239 592,237 592,236 590,234 590,233 588,231 588,230 586,228 586,227 583,224 583,223 580,220 580,219 575,214 575,213 568,206 568,205 559,196 558,196 549,187 548,187 545,184 544,184 540,180 539,180 537,178 536,178 534,176 533,176 531,174 530,174 528,172 527,172 525,170 524,170 523,169 522,169 520,167 519,167 518,166 517,166 516,165 515,165 514,164 513,164 512,163 511,163 510,162 509,162 507,160 506,160 505,159 503,159 502,158 501,158 500,157 499,157 498,156 496,156 495,155 494,155 493,154 492,154 491,153 489,153 488,152 486,152 485,151 483,151 482,150 481,150 480,149 478,149 477,148 474,148 473,147 471,147 470,146 468,146 467,145 463,145 462,144 459,144 458,143 455,143 454,142 451,142 450,141 444,141 443,140 438,140 437,139 431,139 430,138 419,138 418,137"/>
+          </svg>
+        </span><span class="omega-text">mega Swap</span>
+      </h1>
+      
+      <p class="subtitle">Swap tokens instantly with the best rates</p>
+
+      <div class="swap-panel">
+        <div class="swap-input-group">
+          <div class="swap-input-label">You Pay</div>
+          <div class="swap-input-row">
+            <input type="number" class="swap-input" id="fromAmount" placeholder="0.0" step="0.000001">
+            <div class="token-selector" onclick="selectToken('from')">
+              <div class="token-icon omega" id="fromTokenIcon">Ω</div>
+              <span id="fromToken">OMEGA</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="swap-arrow">
+          <button class="swap-arrow-btn" onclick="swapTokens()">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 10l5 5 5-5M7 14l5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="swap-input-group">
+          <div class="swap-input-label">You Receive</div>
+          <div class="swap-input-row">
+            <input type="number" class="swap-input" id="toAmount" placeholder="0.0" step="0.000001" readonly>
+            <div class="token-selector" onclick="selectToken('to')">
+              <div class="token-icon arcade" id="toTokenIcon">A</div>
+              <span id="toToken">ARCADE</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="swap-info">
+          <div class="swap-info-row">
+            <span class="swap-info-label">Exchange Rate</span>
+            <span class="swap-info-value" id="exchangeRate">1 OMEGA = 2.5 ARCADE</span>
+          </div>
+          <div class="swap-info-row">
+            <span class="swap-info-label">Slippage</span>
+            <span class="swap-info-value">0.5%</span>
+          </div>
+          <div class="swap-info-row">
+            <span class="swap-info-label">Network Fee</span>
+            <span class="swap-info-value">0.001 ETH</span>
+          </div>
+          <div class="swap-info-row">
+            <span class="swap-info-label">Minimum Received</span>
+            <span class="swap-info-value" id="minReceived">0.0 ARCADE</span>
+          </div>
+        </div>
+
+        <button class="swap-btn" onclick="executeSwap()" id="swapBtn">Connect Wallet to Swap</button>
+      </div>
+
+      <div id="successMessage" class="success-message" style="display: none;"></div>
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2024 Omega DeFi Hub. Built on the Omega Network.</p>
+    </div>
   </div>
-  <div class="omega-symbol">&#937;</div>
-  <div class="swap-container">
-    <!-- Swap UI will be inserted here by JavaScript -->
-  </div>
-  <div class="footer">&copy; 2025 Omega Swap</div>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
   <script>
-  window.addEventListener('DOMContentLoaded', function() {
-    // --- BEGIN: TRADITIONAL SWAP PANEL ---
-    const SWAP_CONTRACT_ADDRESS = "0x2ec4ca76b81bb741b31fe269c72fad14756efc6a";
-    const ARCADE_ADDRESS = "0xFF3fD61427d3485c8e33cb5f5999EAd9639C56a5";
-    const OMEGA_SYMBOL = "OMEGA";
-    const ARCADE_SYMBOL = "ARCADE";
-    const SWAP_ABI = [
-      "function swapOmegaForArcade() payable",
-      "function swapArcadeForOmega(uint256)",
-      "function rateOmegaToArcade() view returns (uint256)",
-      "function rateArcadeToOmega() view returns (uint256)"
-    ];
-    const ERC20_ABI = [
-      "function approve(address,uint256) external returns (bool)",
-      "function allowance(address,address) view returns (uint256)",
-      "function decimals() view returns (uint8)",
-      "function symbol() view returns (string)",
-      "function balanceOf(address) view returns (uint256)"
-    ];
-    let provider, signer, swapContract, arcadeToken;
-    let userAddress = null;
-    let disconnectBtn = null;
-    let swapDirection = 'OMEGA_TO_ARCADE'; // or 'ARCADE_TO_OMEGA'
-    
-    function renderSwapPanel() {
-      document.querySelector('.swap-container').innerHTML = `
-        <div class="swap-title" style="text-align:center;font-size:2.1rem;font-weight:700;margin-bottom:1.5rem;letter-spacing:0.04em;">
-          <strong>Omega</strong>
-        </div>
-        <div class="swap-panel">
-          <div class="balance-row" id="from-balance"></div>
-          <div class="token-row">
-            <div class="token-select">
-              <span class="token-label">From</span>
-              <input class="token-input" id="from-amount" type="number" min="0" placeholder="0.0" />
-            </div>
-            <select class="token-dropdown" id="from-token">
-              <option value="OMEGA">OMEGA</option>
-              <option value="ARCADE">ARCADE</option>
-            </select>
-          </div>
-          <div class="swap-arrow" id="swap-arrow">&#8595;</div>
-          <div class="balance-row" id="to-balance"></div>
-          <div class="token-row">
-            <div class="token-select">
-              <span class="token-label">To</span>
-              <input class="token-input" id="to-amount" type="number" min="0" placeholder="0.0" disabled />
-            </div>
-            <select class="token-dropdown" id="to-token" disabled>
-              <option value="ARCADE">ARCADE</option>
-              <option value="OMEGA">OMEGA</option>
-            </select>
-          </div>
-          <button class="swap-btn" id="swap-btn">Swap</button>
-        </div>
-      `;
-      // Move or create the status div below the swap container
-      let statusDiv = document.getElementById('swap-status');
-      if (!statusDiv) {
-        statusDiv = document.createElement('div');
-        statusDiv.id = 'swap-status';
-        statusDiv.style.margin = '2rem auto 0 auto';
-        statusDiv.style.maxWidth = '420px';
-        statusDiv.style.textAlign = 'center';
-        statusDiv.style.fontSize = '1.1rem';
-        statusDiv.style.display = 'flex';
-        statusDiv.style.alignItems = 'center';
-        statusDiv.style.justifyContent = 'center';
-        statusDiv.style.gap = '0.5em';
-        document.body.insertBefore(statusDiv, document.querySelector('.footer'));
-      }
-      statusDiv.textContent = '';
-      statusDiv.className = '';
+    let provider;
+    let signer;
+    let userAddress;
+    let fromToken = 'OMEGA';
+    let toToken = 'ARCADE';
+    let exchangeRate = 2.5;
+
+    function showSuccess(message) {
+      const successDiv = document.getElementById('successMessage');
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+      document.getElementById('errorMessage').style.display = 'none';
     }
-    renderSwapPanel();
-    
-    // --- Wallet logic ---
-    const walletBtn = document.querySelector('.wallet-btn-top');
-    function shortenAddress(addr) {
-      return addr.slice(0, 6) + '...' + addr.slice(-4);
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      document.getElementById('successMessage').style.display = 'none';
     }
-    function updateWalletUI() {
-      if (userAddress) {
-        walletBtn.textContent = shortenAddress(userAddress);
-        if (!disconnectBtn) {
-          disconnectBtn = document.createElement('button');
-          disconnectBtn.className = 'disconnect-btn';
-          disconnectBtn.textContent = 'Disconnect';
-          disconnectBtn.onclick = disconnectWallet;
+
+    function selectToken(type) {
+      const tokens = ['OMEGA', 'ARCADE', 'ETH', 'USDC'];
+      const currentToken = type === 'from' ? fromToken : toToken;
+      const newToken = prompt(`Select ${type} token:`, currentToken);
+      
+      if (newToken && tokens.includes(newToken.toUpperCase())) {
+        if (type === 'from') {
+          fromToken = newToken.toUpperCase();
+          document.getElementById('fromToken').textContent = fromToken;
+          updateTokenIcon('fromTokenIcon', fromToken);
+        } else {
+          toToken = newToken.toUpperCase();
+          document.getElementById('toToken').textContent = toToken;
+          updateTokenIcon('toTokenIcon', toToken);
         }
-        if (!walletBtn.contains(disconnectBtn)) {
-          walletBtn.appendChild(disconnectBtn);
-        }
-        disconnectBtn.style.display = '';
-      } else {
-        walletBtn.textContent = 'Connect Wallet';
-        if (disconnectBtn) disconnectBtn.style.display = 'none';
+        updateExchangeRate();
+        calculateSwap();
       }
     }
-    async function connectWallet() {
-      if (window.ethereum) {
+    
+    function updateTokenIcon(iconId, token) {
+      const icon = document.getElementById(iconId);
+      const iconClass = token.toLowerCase();
+      const iconText = getTokenIconText(token);
+      
+      // Remove all existing token icon classes
+      icon.className = 'token-icon ' + iconClass;
+      icon.textContent = iconText;
+    }
+    
+    function getTokenIconText(token) {
+      switch(token) {
+        case 'OMEGA': return 'Ω';
+        case 'ARCADE': return 'A';
+        case 'ETH': return 'Ξ';
+        case 'USDC': return '$';
+        default: return token.charAt(0);
+      }
+    }
+
+    function swapTokens() {
+      const temp = fromToken;
+      fromToken = toToken;
+      toToken = temp;
+      
+      document.getElementById('fromToken').textContent = fromToken;
+      document.getElementById('toToken').textContent = toToken;
+      
+      // Update token icons
+      updateTokenIcon('fromTokenIcon', fromToken);
+      updateTokenIcon('toTokenIcon', toToken);
+      
+      const fromAmount = document.getElementById('fromAmount').value;
+      const toAmount = document.getElementById('toAmount').value;
+      
+      document.getElementById('fromAmount').value = toAmount;
+      document.getElementById('toAmount').value = fromAmount;
+      
+      updateExchangeRate();
+    }
+
+    function updateExchangeRate() {
+      // Simulate different exchange rates
+      const rates = {
+        'OMEGA-ARCADE': 2.5,
+        'ARCADE-OMEGA': 0.4,
+        'OMEGA-ETH': 0.001,
+        'ETH-OMEGA': 1000,
+        'OMEGA-USDC': 0.5,
+        'USDC-OMEGA': 2
+      };
+      
+      const rateKey = `${fromToken}-${toToken}`;
+      exchangeRate = rates[rateKey] || 1;
+      
+      document.getElementById('exchangeRate').textContent = `1 ${fromToken} = ${exchangeRate} ${toToken}`;
+    }
+
+    function calculateSwap() {
+      const fromAmount = parseFloat(document.getElementById('fromAmount').value) || 0;
+      const toAmount = fromAmount * exchangeRate;
+      
+      document.getElementById('toAmount').value = toAmount.toFixed(6);
+      document.getElementById('minReceived').textContent = `${(toAmount * 0.995).toFixed(6)} ${toToken}`;
+    }
+
+    function executeSwap() {
+      if (!userAddress) {
+        showError('Please connect your wallet first');
+        return;
+      }
+      
+      const fromAmount = document.getElementById('fromAmount').value;
+      if (!fromAmount || parseFloat(fromAmount) <= 0) {
+        showError('Please enter a valid amount');
+        return;
+      }
+
+      // Simulate swap execution
+      showSuccess('Executing swap...');
+      
+      setTimeout(() => {
+        showSuccess(`Successfully swapped ${fromAmount} ${fromToken} for ${(fromAmount * exchangeRate).toFixed(6)} ${toToken}!`);
+        document.getElementById('fromAmount').value = '';
+        document.getElementById('toAmount').value = '';
+      }, 2000);
+    }
+
+    // Event listeners
+    document.getElementById('fromAmount').addEventListener('input', calculateSwap);
+
+    // Auto-connect if previously connected
+    window.addEventListener('load', async () => {
+      if (typeof window.ethereum !== 'undefined') {
         try {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          if (accounts && accounts.length > 0) {
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          const accounts = await provider.listAccounts();
+          if (accounts.length > 0) {
+            signer = provider.getSigner();
             userAddress = accounts[0];
-            sessionStorage.setItem('omega_wallet_connected', '1');
-            updateWalletUI();
-            initializeSwapContracts();
-            updateBalances();
-          } else {
-            alert('No accounts found in MetaMask. Please unlock your wallet.');
+            
+            document.getElementById('walletAddress').textContent = userAddress;
+            document.getElementById('walletPanel').style.display = 'flex';
+            document.getElementById('swapBtn').textContent = 'Swap Tokens';
           }
-        } catch (err) {
-          if (err.code === 4001) {
-            alert('Wallet connection rejected by user.');
-          } else if (err.code === -32002) {
-            alert('Please check MetaMask - connection request is pending.');
-          } else {
-            alert('Wallet connection failed: ' + (err.message || err));
-          }
+        } catch (error) {
+          console.error('Error checking wallet connection:', error);
         }
-      } else {
-        alert('MetaMask not detected. Please install MetaMask.');
       }
-    }
+      
+      updateExchangeRate();
+    });
+
     function disconnectWallet() {
-      userAddress = null;
-      sessionStorage.removeItem('omega_wallet_connected');
-      updateWalletUI();
       provider = null;
       signer = null;
-      swapContract = null;
-      arcadeToken = null;
-      updateBalances();
+      userAddress = null;
+      document.getElementById('walletPanel').style.display = 'none';
+      document.getElementById('swapBtn').textContent = 'Connect Wallet to Swap';
     }
-    walletBtn.addEventListener('click', function() {
-      if (!userAddress) connectWallet();
-    });
-    (async function() {
-      if (window.ethereum && sessionStorage.getItem('omega_wallet_connected') === '1') {
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          if (accounts.length > 0) {
-            userAddress = accounts[0];
-            initializeSwapContracts();
-            updateBalances();
-          } else {
-            userAddress = null;
-          }
-        } catch (err) {
-          userAddress = null;
-        }
-      } else {
-        userAddress = null;
-      }
-      updateWalletUI();
-    })();
-    // --- END Wallet logic ---
-
-    function initializeSwapContracts() {
-      if (window.ethereum) {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-        swapContract = new ethers.Contract(SWAP_CONTRACT_ADDRESS, SWAP_ABI, signer);
-        arcadeToken = new ethers.Contract(ARCADE_ADDRESS, ERC20_ABI, signer);
-      }
-    }
-    // --- Swap logic ---
-    let fromToken = OMEGA_SYMBOL;
-    let toToken = ARCADE_SYMBOL;
-    function updateDropdowns() {
-      const fromDropdown = document.getElementById('from-token');
-      const toDropdown = document.getElementById('to-token');
-      if (fromToken === OMEGA_SYMBOL) {
-        fromDropdown.value = OMEGA_SYMBOL;
-        toDropdown.value = ARCADE_SYMBOL;
-      } else {
-        fromDropdown.value = ARCADE_SYMBOL;
-        toDropdown.value = OMEGA_SYMBOL;
-      }
-    }
-    function updateInputStates() {
-      document.getElementById('from-amount').value = '';
-      document.getElementById('to-amount').value = '';
-    }
-    function updateBalances() {
-      const fromBalanceDiv = document.getElementById('from-balance');
-      const toBalanceDiv = document.getElementById('to-balance');
-      if (!userAddress || !provider) {
-        fromBalanceDiv.textContent = '';
-        toBalanceDiv.textContent = '';
-        return;
-      }
-      if (fromToken === OMEGA_SYMBOL) {
-        provider.getBalance(userAddress).then(bal => {
-          fromBalanceDiv.textContent = `Balance: ${ethers.utils.formatEther(bal)}`;
-        });
-        arcadeToken && arcadeToken.balanceOf(userAddress).then(bal => {
-          arcadeToken.decimals().then(dec => {
-            toBalanceDiv.textContent = `Balance: ${ethers.utils.formatUnits(bal, dec)}`;
-          });
-        });
-      } else {
-        arcadeToken && arcadeToken.balanceOf(userAddress).then(bal => {
-          arcadeToken.decimals().then(dec => {
-            fromBalanceDiv.textContent = `Balance: ${ethers.utils.formatUnits(bal, dec)}`;
-          });
-        });
-        provider.getBalance(userAddress).then(bal => {
-          toBalanceDiv.textContent = `Balance: ${ethers.utils.formatEther(bal)}`;
-        });
-      }
-    }
-    function flipDirection() {
-      [fromToken, toToken] = [toToken, fromToken];
-      updateDropdowns();
-      updateInputStates();
-      updateBalances();
-      document.getElementById('swap-status').textContent = '';
-      document.getElementById('swap-status').className = '';
-    }
-    document.addEventListener('change', function(e) {
-      if (e.target.id === 'from-token') {
-        if (e.target.value !== fromToken) flipDirection();
-      }
-    });
-    document.getElementById('swap-arrow').addEventListener('click', flipDirection);
-    // --- Swap button logic ---
-    document.getElementById('swap-btn').onclick = async function() {
-      const statusDiv = document.getElementById('swap-status');
-      statusDiv.textContent = '';
-      statusDiv.className = '';
-      const fromAmount = document.getElementById('from-amount').value;
-      if (!userAddress) {
-        statusDiv.textContent = 'Connect your wallet first.';
-        statusDiv.className = 'status-error';
-        return;
-      }
-      if (!fromAmount || isNaN(fromAmount) || Number(fromAmount) <= 0) {
-        statusDiv.textContent = 'Enter a valid amount.';
-        statusDiv.className = 'status-error';
-        return;
-      }
-      try {
-        if (fromToken === OMEGA_SYMBOL && toToken === ARCADE_SYMBOL) {
-          const tx = await swapContract.swapOmegaForArcade({ value: ethers.utils.parseEther(fromAmount) });
-          statusDiv.textContent = 'Swap successful!';
-          statusDiv.className = 'status-success';
-          await tx.wait();
-        } else if (fromToken === ARCADE_SYMBOL && toToken === OMEGA_SYMBOL) {
-          const decimals = await arcadeToken.decimals();
-          const parsed = ethers.utils.parseUnits(fromAmount, decimals);
-          const allowance = await arcadeToken.allowance(userAddress, SWAP_CONTRACT_ADDRESS);
-          if (allowance.lt(parsed)) {
-            statusDiv.textContent = 'Approving ARCADE...';
-            statusDiv.className = '';
-            const tx = await arcadeToken.approve(SWAP_CONTRACT_ADDRESS, parsed);
-            await tx.wait();
-          }
-          const tx2 = await swapContract.swapArcadeForOmega(parsed);
-          statusDiv.textContent = 'Swap successful!';
-          statusDiv.className = 'status-success';
-          await tx2.wait();
-        }
-        updateBalances();
-        updateInputStates();
-      } catch (err) {
-        statusDiv.textContent = 'Swap failed: ' + (err.reason || err.message || err);
-        statusDiv.className = 'status-error';
-      }
-    };
-    // --- Update balances on wallet and chain changes ---
-    if (window.ethereum) {
-      window.ethereum.on && window.ethereum.on('accountsChanged', () => {
-        initializeSwapContracts();
-        updateBalances();
-      });
-      window.ethereum.on && window.ethereum.on('chainChanged', () => {
-        initializeSwapContracts();
-        updateBalances();
-      });
-    }
-    // --- Initialize contracts and balances on load ---
-    initializeSwapContracts();
-    updateBalances();
-    document.getElementById('from-amount').addEventListener('input', function(e) {
-      document.getElementById('to-amount').value = e.target.value;
-    });
-  });
   </script>
 </body>
 </html> 

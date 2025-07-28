@@ -3,624 +3,450 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>On-Chain Activity</title>
-  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+  <title>Activity Tracker - Omega DeFi</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="omega-theme-system.js"></script>
+  <link rel="stylesheet" href="styles.css">
   <style>
-    body {
-      background: #fff;
-      color: #111;
-      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-    }
+    /* Page-specific styles */
     .tracker-container {
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 2rem auto;
-      background: #fff;
-      border-radius: 1.5rem;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+      background: var(--bg-card);
+      border: 1px solid var(--border-primary);
+      border-radius: 20px;
+      box-shadow: var(--shadow-secondary);
       padding: 2.5rem 2rem;
       display: flex;
       flex-direction: column;
       gap: 2rem;
+      backdrop-filter: blur(20px);
     }
+    
     .tracker-title {
       text-align: center;
       font-size: 2.1rem;
       font-weight: 700;
       margin-bottom: 1rem;
       letter-spacing: 0.04em;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
+    
     .wallet-section {
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 16px;
       padding: 1.5rem;
       text-align: center;
+      box-shadow: var(--shadow-secondary);
     }
+    
     .wallet-status {
       font-size: 1.1rem;
       margin-bottom: 1rem;
+      color: var(--text-secondary);
     }
+    
     .connect-btn {
-      background: #111;
-      color: #fff;
+      background: var(--gradient-primary);
+      color: var(--bg-primary);
       border: none;
-      border-radius: 0.8rem;
+      border-radius: 12px;
       font-size: 1.1rem;
       font-weight: 600;
       padding: 0.8rem 1.5rem;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
     }
+    
     .connect-btn:hover {
-      opacity: 0.8;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary);
     }
+    
     .stats-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 2rem;
-      max-width: 700px;
+      max-width: 800px;
       margin: 2rem auto 1rem auto;
     }
+    
     .stat-box {
       text-align: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-secondary);
+      backdrop-filter: blur(20px);
     }
+    
     .stat-value {
       font-size: 2rem;
       font-weight: 700;
-      color: #111;
+      color: var(--accent-primary);
       margin-bottom: 0.3rem;
+      font-family: 'JetBrains Mono', monospace;
     }
+    
     .stat-label {
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-secondary);
       font-weight: 500;
     }
+    
     .leaderboard-section {
       margin-top: 2rem;
     }
+    
     .section-title {
       font-size: 1.5rem;
       font-weight: 600;
       margin-bottom: 1rem;
       text-align: center;
+      color: var(--text-primary);
     }
+    
     .leaderboard {
-      background: #f8f9fa;
-      border-radius: 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 16px;
       overflow: hidden;
+      box-shadow: var(--shadow-secondary);
     }
+    
     .leaderboard-header {
-      background: #111;
-      color: #fff;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
       padding: 1rem;
       display: grid;
       grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
       gap: 1rem;
       font-weight: 600;
+      border-bottom: 1px solid var(--border-primary);
     }
+    
     .leaderboard-row {
       padding: 1rem;
       display: grid;
       grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
       gap: 1rem;
-      border-bottom: 1px solid #e9ecef;
+      border-bottom: 1px solid var(--border-secondary);
       align-items: center;
+      transition: background 0.2s ease;
     }
+    
+    .leaderboard-row:hover {
+      background: var(--bg-tertiary);
+    }
+    
     .leaderboard-row:last-child {
       border-bottom: none;
     }
+    
     .rank {
       font-weight: 700;
       font-size: 1.1rem;
     }
+    
     .rank-1 { color: #ffd700; }
     .rank-2 { color: #c0c0c0; }
     .rank-3 { color: #cd7f32; }
+    
     .address {
-      font-family: monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 0.9rem;
+      color: var(--text-primary);
     }
+    
     .balance, .transactions {
       text-align: center;
       font-weight: 600;
+      color: var(--text-primary);
     }
+    
     .loading {
       text-align: center;
       padding: 2rem;
-      color: #666;
+      color: var(--text-secondary);
     }
-    .footer {
-      text-align: center;
-      color: #aaa;
-      font-size: 0.95rem;
-      margin: 2rem 0 1rem 0;
-    }
+    
     .token-badge {
       display: inline-block;
       padding: 0.2rem 0.5rem;
-      border-radius: 0.3rem;
+      border-radius: 8px;
       font-size: 0.8rem;
       font-weight: 600;
       margin-left: 0.5rem;
     }
+    
     .omega-badge {
-      background: #ff6b35;
-      color: white;
+      background: var(--accent-primary);
+      color: var(--bg-primary);
     }
+    
     .arcade-badge {
-      background: #4ecdc4;
-      color: white;
+      background: var(--accent-secondary);
+      color: var(--bg-primary);
     }
+    
     .wallet-box {
-      background: #f8f9fa;
-      border-radius: 1.2rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 16px;
       padding: 2.5rem 1rem 2rem 1rem;
       margin-bottom: 2rem;
       text-align: center;
+      box-shadow: var(--shadow-secondary);
     }
+    
     .wallet-btn {
-      background: #111;
-      color: #fff;
+      background: var(--gradient-primary);
+      color: var(--bg-primary);
       font-size: 1.5rem;
       font-weight: 700;
       border: none;
-      border-radius: 1.2rem;
+      border-radius: 12px;
       padding: 1rem 0;
       width: 260px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.3s ease;
       margin-bottom: 1.2rem;
       display: block;
       margin-left: auto;
       margin-right: auto;
+      font-family: 'Inter', sans-serif;
     }
-    @media (max-width: 600px) {
+    
+    .wallet-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary);
+    }
+    
+    @media (max-width: 700px) {
       .tracker-container {
         margin: 1rem;
         padding: 1.5rem 1rem;
       }
+      
       .tracker-title {
         font-size: 1.8rem;
       }
+      
       .leaderboard-header, .leaderboard-row {
         grid-template-columns: 1fr 1.5fr 1fr 1fr;
         font-size: 0.9rem;
       }
+      
       .address {
         font-size: 0.8rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <div class="tracker-container">
-    <div class="tracker-title">On-Chain Activity</div>
-    
-    <div class="wallet-section" id="wallet-section">
-      <div class="wallet-box">
-        <button id="connect-btn" class="wallet-btn" style="width: 260px; margin-bottom: 1.2rem;">Connect Wallet</button>
-        <button id="submit-btn" class="wallet-btn" style="width: 260px;">Submit Score</button>
+  <div class="container">
+    <!-- Wallet Panel -->
+    <div class="wallet-panel" id="walletPanel" style="display: none;">
+      <div class="wallet-info">
+        <div class="wallet-status">Connected</div>
+        <div class="wallet-address" id="walletAddress"></div>
+      </div>
+      <button class="wallet-action-btn" onclick="disconnectWallet()">Disconnect</button>
+      <a href="https://omeganetwork.co" class="wallet-action-btn home-btn" title="Go to Omega Network">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="tracker-container">
+      <h1 class="omega-title">
+              <span class="omega-symbol">
+        <svg width="32" height="32" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#00ff88"/>
+              <stop offset="100%" style="stop-color:#00d4ff"/>
+            </linearGradient>
+          </defs>
+          <polygon fill="url(#titleGradient)" points="387,137 386,138 372,138 371,139 364,139 363,140 358,140 357,141 351,141 350,142 347,142 346,143 343,143 342,144 338,144 337,145 334,145 333,146 331,146 330,147 327,147 326,148 324,148 323,149 320,149 319,150 318,150 317,151 315,151 314,152 312,152 311,153 310,153 309,154 307,154 306,155 305,155 304,156 302,156 301,157 300,157 299,158 298,158 297,159 295,159 294,160 293,160 292,161 291,161 290,162 289,162 288,163 287,163 286,164 285,164 283,166 282,166 281,167 280,167 279,168 278,168 277,169 276,169 274,171 273,171 271,173 270,173 268,175 267,175 266,176 265,176 263,178 262,178 259,181 258,181 255,184 254,184 251,187 250,187 244,193 243,193 228,208 228,209 220,217 220,218 217,221 217,222 214,225 214,226 212,228 212,229 210,231 210,232 208,234 208,235 206,237 206,238 205,239 205,240 203,242 203,243 202,244 202,245 201,246 201,247 199,249 199,250 198,251 198,252 197,253 197,254 196,255 196,256 195,257 195,258 194,259 194,261 193,262 193,263 192,264 192,265 191,266 191,268 190,269 190,270 189,271 189,273 188,274 188,276 187,277 187,279 186,280 186,281 185,282 185,285 184,286 184,289 183,290 183,292 182,293 182,296 181,297 181,300 180,301 180,306 179,307 179,310 178,311 178,317 177,318 177,328 176,329 176,368 177,369 177,379 178,380 178,385 179,386 179,390 180,391 180,396 181,397 181,400 182,401 182,404 183,405 183,407 184,408 184,411 185,412 185,414 186,415 186,417 187,418 187,420 188,421 188,423 189,424 189,425 190,426 190,427 191,428 191,430 192,431 192,432 193,433 193,435 194,436 194,437 195,438 195,439 196,440 196,441 197,442 197,443 198,444 198,445 199,446 199,447 201,449 201,450 202,451 202,452 203,453 203,454 205,456 205,457 206,458 206,459 208,461 208,462 210,464 210,465 212,467 212,468 214,470 214,471 218,475 218,476 223,481 223,482 228,487 228,488 248,508 249,508 255,514 256,514 257,515 257,516 258,516 261,519 262,519 266,523 267,523 271,527 272,527 276,531 277,531 279,533 280,533 283,536 284,536 286,538 287,538 289,540 290,540 293,543 294,543 298,547 299,547 301,549 301,550 304,553 304,554 305,555 305,558 301,562 226,562 225,561 213,561 212,560 208,560 207,559 203,559 202,558 200,558 199,557 197,557 196,556 195,556 194,555 193,555 191,553 190,553 187,550 186,550 182,546 182,545 179,542 179,541 177,539 177,538 176,537 176,536 175,535 175,534 174,533 174,531 173,530 173,529 172,528 172,527 156,527 157,528 157,532 158,533 158,539 159,540 159,547 160,548 160,554 161,555 161,559 162,560 162,566 163,567 162,568 163,569 163,575 164,576 164,582 165,583 165,588 166,589 166,597 167,598 167,603 168,604 168,609 169,610 169,616 170,617 170,621 354,621 354,617 353,616 353,614 352,613 352,610 351,609 351,605 350,604 350,601 349,600 349,597 348,596 348,593 347,592 347,588 346,587 346,584 345,583 345,581 344,580 344,576 343,575 343,572 342,571 342,568 341,567 341,563 340,562 340,559 339,558 339,555 338,554 338,552 337,551 337,547 336,546 336,542 335,541 335,539 334,538 334,535 333,534 333,532 332,531 332,530 330,528 329,528 327,526 326,526 321,521 320,521 298,499 298,498 293,493 293,492 290,489 290,488 288,486 288,485 286,483 286,482 284,480 284,479 282,477 282,476 280,474 280,473 279,472 279,471 278,470 278,469 276,467 276,466 275,465 275,464 274,463 274,462 273,461 273,460 272,459 272,458 271,457 271,456 270,455 270,454 269,453 269,452 268,451 268,450 267,449 267,448 266,447 266,445 265,444 265,443 264,442 264,440 263,439 263,438 262,437 262,435 261,434 261,432 260,431 260,430 259,429 259,427 258,426 258,423 257,422 257,420 256,419 256,417 255,416 255,413 254,412 254,408 253,407 253,404 252,403 252,399 251,398 251,392 250,391 250,385 249,384 249,377 248,376 248,360 247,359 247,343 248,342 248,328 249,327 249,319 250,318 250,310 251,309 251,302 252,301 252,298 253,297 253,293 254,292 254,289 255,288 255,285 256,284 256,282 257,281 257,279 258,278 258,276 259,275 259,273 260,272 260,270 261,269 261,268 262,267 262,265 263,264 263,263 264,262 264,260 265,259 265,258 266,257 266,256 267,255 267,254 268,253 268,252 269,251 269,250 270,249 270,248 271,247 271,246 272,245 272,244 273,243 273,242 274,241 274,240 276,238 276,237 277,236 277,235 279,233 279,232 281,230 281,229 283,227 283,226 285,224 285,223 288,220 288,219 293,214 293,213 311,195 312,195 317,190 318,190 321,187 322,187 324,185 325,185 326,184 327,184 329,182 330,182 331,181 332,181 333,180 334,180 335,179 336,179 338,177 339,177 340,176 342,176 343,175 344,175 345,174 346,174 347,173 348,173 349,172 351,172 352,171 353,171 354,170 356,170 357,169 359,169 360,168 363,168 364,167 366,167 367,166 370,166 371,165 375,165 376,164 380,164 381,163 387,163 388,162 410,162 411,163 416,163 417,164 422,164 423,165 428,165 429,166 432,166 433,167 435,167 436,168 439,168 440,169 442,169 443,170 445,170 446,171 447,171 448,172 450,172 451,173 452,173 453,174 454,174 455,175 457,175 458,176 459,176 460,177 461,177 463,179 464,179 465,180 466,180 467,181 468,181 469,182 470,182 473,185 474,185 475,186 476,186 479,189 480,189 482,191 483,191 488,196 489,196 506,213 506,214 510,218 510,219 513,222 513,223 516,226 516,227 518,229 518,230 520,232 520,233 522,235 522,236 523,237 523,238 525,240 525,241 526,242 526,243 527,244 527,245 528,246 528,247 529,248 529,249 530,250 530,251 531,252 531,253 532,254 532,255 533,256 533,257 534,258 534,260 535,261 535,262 536,263 536,265 537,266 537,267 538,268 538,270 539,271 539,273 540,274 540,275 541,276 541,279 542,280 542,282 543,283 543,286 544,287 544,289 545,290 545,294 546,295 546,298 547,299 547,303 548,304 548,309 549,310 549,317 550,318 550,326 551,327 551,376 550,377 550,384 549,385 549,391 548,392 548,399 547,400 547,403 546,404 546,408 545,409 545,413 544,414 544,416 543,417 543,420 542,421 542,423 541,424 541,427 540,428 540,430 539,431 539,432 538,433 538,435 537,436 537,438 536,439 536,440 535,441 535,443 534,444 534,445 533,446 533,447 532,448 532,449 531,450 531,451 530,452 530,453 529,454 529,455 528,456 528,457 527,458 527,459 526,460 526,461 525,462 525,463 524,464 524,465 523,466 523,467 521,469 521,470 520,471 520,472 519,473 519,474 517,476 517,477 516,478 516,479 514,481 514,482 511,485 511,486 510,487 510,488 507,491 507,492 503,496 503,497 498,502 498,503 485,516 484,516 479,521 478,521 475,524 474,524 470,528 469,528 467,530 467,531 466,532 466,536 465,537 465,540 464,541 464,544 463,545 463,549 462,550 462,553 461,554 461,557 460,558 460,561 459,562 459,566 458,567 458,570 457,571 457,574 456,575 456,578 455,579 455,583 454,584 454,587 453,588 453,591 452,592 452,596 451,597 451,600 450,601 450,604 449,605 449,608 448,609 448,613 447,614 447,617 446,618 446,621 628,621 628,619 629,618 629,610 630,609 630,603 631,602 631,596 632,595 632,590 633,589 633,581 634,580 634,574 635,573 635,567 636,566 636,559 637,558 637,552 638,551 638,545 639,544 639,538 640,537 640,531 641,530 641,527 626,527 626,529 625,530 625,531 624,532 624,534 623,535 623,536 622,537 622,538 620,540 620,541 619,542 619,543 611,551 610,551 607,554 606,554 605,555 603,555 602,556 601,556 600,557 599,557 598,558 596,558 595,559 591,559 590,560 586,560 585,561 572,561 571,562 498,562 494,558 494,555 495,554 495,553 497,551 497,550 500,547 501,547 505,543 506,543 508,541 509,541 511,539 512,539 515,536 516,536 518,534 519,534 521,532 522,532 526,528 527,528 530,525 531,525 534,522 535,522 540,517 541,517 548,510 549,510 574,485 574,484 579,479 579,478 582,475 582,474 585,471 585,470 588,467 588,466 590,464 590,463 591,462 591,461 593,459 593,458 595,456 595,455 596,454 596,453 598,451 598,450 599,449 599,448 600,447 600,446 601,445 601,444 602,443 602,442 603,441 603,440 604,439 604,438 605,437 605,436 606,435 606,433 607,432 607,431 608,430 608,429 609,428 609,426 610,425 610,424 611,423 611,421 612,420 612,418 613,417 613,415 614,414 614,412 615,411 615,409 616,408 616,405 617,404 617,402 618,401 618,398 619,397 619,392 620,391 620,388 621,387 621,382 622,381 622,373 623,372 623,360 624,359 624,342 623,341 623,328 622,327 622,317 621,316 621,312 620,311 620,307 619,306 619,302 618,301 618,297 617,296 617,294 616,293 616,290 615,289 615,286 614,285 614,283 613,282 613,281 612,280 612,277 611,276 611,274 610,273 610,272 609,271 609,270 608,269 608,267 607,266 607,265 606,264 606,262 605,261 605,260 604,259 604,258 603,257 603,256 602,255 602,254 601,253 601,252 600,251 600,250 599,249 599,248 598,247 598,246 596,244 596,243 595,242 595,241 594,240 594,239 592,237 592,236 590,234 590,233 588,231 588,230 586,228 586,227 583,224 583,223 580,220 580,219 575,214 575,213 568,206 568,205 559,196 558,196 549,187 548,187 545,184 544,184 540,180 539,180 537,178 536,178 534,176 533,176 531,174 530,174 528,172 527,172 525,170 524,170 523,169 522,169 520,167 519,167 518,166 517,166 516,165 515,165 514,164 513,164 512,163 511,163 510,162 509,162 507,160 506,160 505,159 503,159 502,158 501,158 500,157 499,157 498,156 496,156 495,155 494,155 493,154 492,154 491,153 489,153 488,152 486,152 485,151 483,151 482,150 481,150 480,149 478,149 477,148 474,148 473,147 471,147 470,146 468,146 467,145 463,145 462,144 459,144 458,143 455,143 454,142 451,142 450,141 444,141 443,140 438,140 437,139 431,139 430,138 419,138 418,137"/>
+        </svg>
+      </span><span class="omega-text">mega Activity Tracker</span>
+      </h1>
+      
+      <p class="subtitle">Track on-chain activity and leaderboard rankings</p>
+
+      <!-- Wallet Connection Section -->
+      <div class="wallet-section" id="walletSection">
+        <div class="wallet-status" id="walletStatus">Connect your wallet to view activity</div>
+        <button class="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid" id="statsGrid" style="display: none;">
+        <div class="stat-box">
+          <div class="stat-value" id="totalBalance">0</div>
+          <div class="stat-label">Total Balance</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="totalTransactions">0</div>
+          <div class="stat-label">Total Transactions</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="userRank">-</div>
+          <div class="stat-label">Your Rank</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="activeUsers">0</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+      </div>
+
+      <!-- Leaderboard Section -->
+      <div class="leaderboard-section">
+        <h2 class="section-title">Leaderboard</h2>
+        <div class="leaderboard" id="leaderboard">
+          <div class="leaderboard-header">
+            <div>Rank</div>
+            <div>Address</div>
+            <div>Balance</div>
+            <div>Transactions</div>
+            <div>Tokens</div>
+          </div>
+          <div class="loading">Connect wallet to view leaderboard</div>
+        </div>
       </div>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="stat-value" id="omega-balance">-</div>
-        <div class="stat-label">OMEGA Balance</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-value" id="arcade-balance">-</div>
-        <div class="stat-label">ARCADE Balance</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-value" id="tx-count">-</div>
-        <div class="stat-label">Total Transactions</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-value" id="user-rank">-</div>
-        <div class="stat-label">Your Rank</div>
-      </div>
-    </div>
-
-    <div class="leaderboard-section">
-      <div class="section-title">Leaderboard</div>
-      <div class="leaderboard">
-        <div class="leaderboard-header">
-          <div>Rank</div>
-          <div>Address</div>
-          <div>OMEGA Balance</div>
-          <div>ARCADE Balance</div>
-          <div>Transactions</div>
-        </div>
-        <div id="leaderboard-body">
-          <div class="loading">Loading leaderboard...</div>
-        </div>
-      </div>
+    <div class="footer">
+      <p>&copy; 2024 Omega DeFi Hub. Built on the Omega Network.</p>
     </div>
   </div>
-  <div class="footer">&copy; 2025 Omega DeFi • Activity Tracker</div>
 
   <script>
-    let provider, signer, userAddress;
-    let userStats = { omegaBalance: 0, arcadeBalance: 0, transactions: 0 };
-    let leaderboardData = [];
-    let refreshInterval;
-
-    // Token addresses
-    const ARCADE_TOKEN_ADDRESS = '0xFF3fD61427d3485c8e33cb5f5999EAd9639C56a5';
-    
-    // Aurora Blockscout API base URL
-    const API_BASE_URL = 'https://0x4e454228.explorer.aurora-cloud.dev/api';
-
-    // Sample addresses for leaderboard (replace with real addresses)
-    const sampleAddresses = [
-      '0x1234567890123456789012345678901234567890',
-      '0x2345678901234567890123456789012345678901',
-      '0x3456789012345678901234567890123456789012',
-      '0x4567890123456789012345678901234567890123',
-      '0x5678901234567890123456789012345678901234',
-      '0x6789012345678901234567890123456789012345',
-      '0x7890123456789012345678901234567890123456',
-      '0x8901234567890123456789012345678901234567',
-      '0x9012345678901234567890123456789012345678',
-      '0xa012345678901234567890123456789012345678'
-    ];
-
-    // OmegaLeaderboard contract integration
-    const LEADERBOARD_CONTRACT_ADDRESS = '0x4fd5329122d9a688b1c07ebb21ae81a1821ad1cf';
-    const LEADERBOARD_CONTRACT_ABI = [
-      {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"omega","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"arcade","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"txCount","type":"uint256"}],"name":"ScoreSubmitted","type":"event"},
-      {"inputs":[{"internalType":"uint256","name":"omega","type":"uint256"},{"internalType":"uint256","name":"arcade","type":"uint256"},{"internalType":"uint256","name":"txCount","type":"uint256"}],"name":"submitScore","outputs":[],"stateMutability":"nonpayable","type":"function"},
-      {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"entries","outputs":[{"internalType":"uint256","name":"omega","type":"uint256"},{"internalType":"uint256","name":"arcade","type":"uint256"},{"internalType":"uint256","name":"txCount","type":"uint256"},{"internalType":"uint256","name":"lastUpdated","type":"uint256"}],"stateMutability":"view","type":"function"},
-      {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getEntry","outputs":[{"components":[{"internalType":"uint256","name":"omega","type":"uint256"},{"internalType":"uint256","name":"arcade","type":"uint256"},{"internalType":"uint256","name":"txCount","type":"uint256"},{"internalType":"uint256","name":"lastUpdated","type":"uint256"}],"internalType":"struct OmegaLeaderboard.Entry","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},
-      {"inputs":[],"name":"getSubmitters","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
-      {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"submitters","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
-    ];
-    let leaderboardContract;
-
-    // Get button elements after DOM is loaded
-    let connectBtn, submitBtn;
-    document.addEventListener('DOMContentLoaded', function() {
-      connectBtn = document.getElementById('connect-btn');
-      submitBtn = document.getElementById('submit-btn');
-      if (typeof ethers === 'undefined') {
-        alert('Error: ethers.js library failed to load. Please refresh the page.');
-        return;
-      }
-      
-      loadLeaderboard();
-      checkStoredWallet();
-      
-      // Set up 5-minute refresh interval
-      refreshInterval = setInterval(() => {
-        console.log('Refreshing leaderboard...');
-        loadLeaderboard();
-        if (userAddress) {
-          trackUserActivity();
-        }
-      }, 5 * 60 * 1000); // 5 minutes
-
-      if (connectBtn) {
-        connectBtn.addEventListener('click', async () => {
-          if (!userAddress) {
-            await connectWallet();
-            updateWalletButton();
-          } else {
-            // Disconnect wallet (reset UI)
-            userAddress = null;
-            provider = null;
-            signer = null;
-            userStats = {
-              omegaBalance: 0,
-              arcadeBalance: 0,
-              transactions: 0,
-              rank: '-',
-            };
-            updateWalletButton();
-            updateStatsUI();
-            // Optionally, hide stats grid
-            const statsGrid = document.getElementById('stats-grid');
-            if (statsGrid) statsGrid.style.display = 'none';
-          }
-        });
-      }
-
-      if (submitBtn) {
-        submitBtn.addEventListener('click', submitToLeaderboard);
-      }
-    });
-
-    function checkStoredWallet() {
-      const storedAddress = localStorage.getItem('omega_activity_wallet');
-      if (storedAddress && typeof window.ethereum !== 'undefined') {
-        connectWallet();
-      }
-    }
+    let provider;
+    let signer;
+    let userAddress;
 
     async function connectWallet() {
       try {
         if (typeof window.ethereum !== 'undefined') {
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
           provider = new ethers.providers.Web3Provider(window.ethereum);
+          await provider.send("eth_requestAccounts", []);
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
           
-          localStorage.setItem('omega_activity_wallet', userAddress);
+          document.getElementById('walletStatus').textContent = `Connected: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+          document.getElementById('walletAddress').textContent = userAddress;
+          document.getElementById('walletSection').style.display = 'none';
+          document.getElementById('walletPanel').style.display = 'flex';
+          document.getElementById('statsGrid').style.display = 'grid';
           
-          if (connectBtn) {
-            connectBtn.textContent = 'Connected';
-            connectBtn.disabled = true;
-          }
-          
-          // Show/hide stats grid
-          const statsGrid = document.getElementById('stats-grid');
-          if (statsGrid) statsGrid.style.display = 'grid';
-          
-          // Track user activity
-          await trackUserActivity();
-          
-          // Listen for account changes
-          window.ethereum.on('accountsChanged', function (accounts) {
-            if (accounts.length === 0) {
-              resetWallet();
-            } else {
-              window.location.reload();
-            }
-          });
-          
+          loadActivityData();
         } else {
-          alert('Please install MetaMask!');
+          alert('Please install MetaMask to use this feature');
         }
       } catch (error) {
         console.error('Error connecting wallet:', error);
-        alert('Failed to connect wallet: ' + error.message);
+        alert('Failed to connect wallet');
       }
     }
 
-    function resetWallet() {
+    function disconnectWallet() {
       provider = null;
       signer = null;
       userAddress = null;
-      localStorage.removeItem('omega_activity_wallet');
-      if (connectBtn) {
-        connectBtn.textContent = 'Connect Wallet';
-        connectBtn.disabled = false;
-      }
-      // Hide stats grid
-      const statsGridHide = document.getElementById('stats-grid');
-      if (statsGridHide) statsGridHide.style.display = 'none';
-    }
-
-    async function trackUserActivity() {
-      if (!userAddress) return;
-
-      try {
-        // OMEGA is the native token
-        const omegaBalance = await getTokenBalance(userAddress, null);
-        const arcadeBalance = await getTokenBalance(userAddress, ARCADE_TOKEN_ADDRESS);
-        const transactionCount = await getTransactionCount(userAddress);
-
-        userStats = {
-          omegaBalance: omegaBalance,
-          arcadeBalance: arcadeBalance,
-          transactions: transactionCount
-        };
-
-        // Update UI
-        updateUserStats();
-        
-      } catch (error) {
-        console.error('Error tracking activity:', error);
-        // Use mock data if API fails
-        userStats = {
-          omegaBalance: Math.floor(Math.random() * 10000) + 100,
-          arcadeBalance: Math.floor(Math.random() * 5000) + 50,
-          transactions: Math.floor(Math.random() * 100) + 10
-        };
-        updateUserStats();
-      }
-    }
-
-    async function getTokenBalance(address, tokenAddress) {
-      try {
-        if (!tokenAddress) {
-          // Native OMEGA balance
-          if (!provider) return 0;
-          const rawBalance = await provider.getBalance(address);
-          return Number(ethers.utils.formatEther(rawBalance));
-        } else {
-          // ERC20 (ARCADE) balance
-          const erc20Abi = [
-            "function balanceOf(address) view returns (uint256)",
-            "function decimals() view returns (uint8)"
-          ];
-          const token = new ethers.Contract(tokenAddress, erc20Abi, provider);
-          const [rawBalance, decimals] = await Promise.all([
-            token.balanceOf(address),
-            token.decimals()
-          ]);
-          return Number(ethers.utils.formatUnits(rawBalance, decimals));
-        }
-      } catch (error) {
-        console.error('Error getting token balance:', error);
-        return 0;
-      }
-    }
-
-    async function getTransactionCount(address) {
-      try {
-        // Use Blockscout API to get all transactions (sent and received)
-        const url = `${API_BASE_URL}?module=account&action=txlist&address=${address}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.status === '1' && Array.isArray(data.result)) {
-          return data.result.length;
-        }
-        return 0;
-      } catch (error) {
-        console.error('Error getting transaction count:', error);
-        return 0;
-      }
-    }
-
-    function updateUserStats() {
-      document.getElementById('omega-balance').textContent = userStats.omegaBalance.toLocaleString();
-      document.getElementById('arcade-balance').textContent = userStats.arcadeBalance.toLocaleString();
-      document.getElementById('tx-count').textContent = userStats.transactions;
       
-      // Calculate user rank
-      const userRank = calculateUserRank();
-      document.getElementById('user-rank').textContent = userRank > 0 ? `#${userRank}` : '-';
+      document.getElementById('walletStatus').textContent = 'Connect your wallet to view activity';
+      document.getElementById('walletSection').style.display = 'block';
+      document.getElementById('walletPanel').style.display = 'none';
+      document.getElementById('statsGrid').style.display = 'none';
+      document.getElementById('leaderboard').innerHTML = '<div class="loading">Connect wallet to view leaderboard</div>';
     }
 
-    function calculateUserRank() {
-      if (!userAddress) return -1;
-      
-      const allUsers = [...leaderboardData];
-      if (userStats.omegaBalance > 0 || userStats.arcadeBalance > 0) {
-        allUsers.push({
-          address: userAddress.substring(0, 6) + '...' + userAddress.substring(38),
-          omegaBalance: userStats.omegaBalance,
-          arcadeBalance: userStats.arcadeBalance,
-          transactions: userStats.transactions
-        });
-      }
-      
-      // Sort by total token value (OMEGA + ARCADE), then by transactions
-      allUsers.sort((a, b) => {
-        const aTotal = a.omegaBalance + a.arcadeBalance;
-        const bTotal = b.omegaBalance + b.arcadeBalance;
-        
-        if (bTotal !== aTotal) {
-          return bTotal - aTotal;
-        }
-        return b.transactions - a.transactions;
-      });
-      
-      // Find user rank
-      for (let i = 0; i < allUsers.length; i++) {
-        if (allUsers[i].address === userAddress.substring(0, 6) + '...' + userAddress.substring(38)) {
-          return i + 1;
-        }
-      }
-      
-      return -1;
-    }
+    async function loadActivityData() {
+      // Simulated data - replace with actual blockchain calls
+      const mockData = {
+        totalBalance: '1,234.56',
+        totalTransactions: '42',
+        userRank: '15',
+        activeUsers: '1,337',
+        leaderboard: [
+          { rank: 1, address: '0x1234...5678', balance: '5,432.10', transactions: '156', tokens: ['OMEGA', 'ARCADE'] },
+          { rank: 2, address: '0x8765...4321', balance: '4,321.09', transactions: '142', tokens: ['OMEGA'] },
+          { rank: 3, address: '0x1111...2222', balance: '3,210.98', transactions: '98', tokens: ['ARCADE'] },
+          { rank: 4, address: '0x3333...4444', balance: '2,109.87', transactions: '87', tokens: ['OMEGA'] },
+          { rank: 5, address: '0x5555...6666', balance: '1,098.76', transactions: '76', tokens: ['ARCADE'] }
+        ]
+      };
 
-    async function loadLeaderboard() {
-      const leaderboardBody = document.getElementById('leaderboard-body');
-      leaderboardBody.innerHTML = '<div class="loading">Loading leaderboard from blockchain...";</div>';
-      try {
-        if (!leaderboardContract) {
-          // Use provider for read-only if not connected
-          const ethProvider = provider || new ethers.providers.JsonRpcProvider('https://0x4e454228.rpc.aurora-cloud.dev');
-          leaderboardContract = new ethers.Contract(LEADERBOARD_CONTRACT_ADDRESS, LEADERBOARD_CONTRACT_ABI, ethProvider);
-        }
-        leaderboardData = [];
-        const submitters = await leaderboardContract.getSubmitters();
-        for (const address of submitters) {
-          const entry = await leaderboardContract.getEntry(address);
-          leaderboardData.push({
-            address: address.substring(0, 6) + '...' + address.substring(address.length - 4),
-            omegaBalance: Number(entry.omega),
-            arcadeBalance: Number(entry.arcade),
-            transactions: Number(entry.txCount),
-            lastUpdated: Number(entry.lastUpdated)
-          });
-        }
-        // Sort by total token value, then txCount
-        leaderboardData.sort((a, b) => {
-          const aTotal = a.omegaBalance + a.arcadeBalance;
-          const bTotal = b.omegaBalance + b.arcadeBalance;
-          if (bTotal !== aTotal) return bTotal - aTotal;
-          return b.transactions - a.transactions;
-        });
-        updateLeaderboardUI();
-      } catch (error) {
-        console.error('Error loading leaderboard:', error);
-        leaderboardBody.innerHTML = '<div class="loading">Could not load leaderboard from blockchain.</div>';
-      }
-    }
+      // Update stats
+      document.getElementById('totalBalance').textContent = mockData.totalBalance;
+      document.getElementById('totalTransactions').textContent = mockData.totalTransactions;
+      document.getElementById('userRank').textContent = mockData.userRank;
+      document.getElementById('activeUsers').textContent = mockData.activeUsers;
 
-    function updateLeaderboardUI() {
-      const leaderboardBody = document.getElementById('leaderboard-body');
-      leaderboardBody.innerHTML = '';
-      
-      leaderboardData.forEach((user, index) => {
-        const row = document.createElement('div');
-        row.className = 'leaderboard-row';
-        row.innerHTML = `
-          <div class="rank rank-${index + 1}">#${index + 1}</div>
+      // Update leaderboard
+      const leaderboardHtml = mockData.leaderboard.map(user => `
+        <div class="leaderboard-row">
+          <div class="rank rank-${user.rank}">#${user.rank}</div>
           <div class="address">${user.address}</div>
-          <div class="balance">${user.omegaBalance.toLocaleString()}</div>
-          <div class="balance">${user.arcadeBalance.toLocaleString()}</div>
+          <div class="balance">${user.balance}</div>
           <div class="transactions">${user.transactions}</div>
-        `;
-        leaderboardBody.appendChild(row);
-      });
-      
-      // Update user rank if connected
-      if (userAddress) {
-        const userRank = calculateUserRank();
-        if (userRank > 0) {
-          document.getElementById('user-rank').textContent = `#${userRank}`;
+          <div>
+            ${user.tokens.map(token => `<span class="token-badge ${token.toLowerCase()}-badge">${token}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('leaderboard').innerHTML = `
+        <div class="leaderboard-header">
+          <div>Rank</div>
+          <div>Address</div>
+          <div>Balance</div>
+          <div>Transactions</div>
+          <div>Tokens</div>
+        </div>
+        ${leaderboardHtml}
+      `;
+    }
+
+    // Auto-connect if previously connected
+    window.addEventListener('load', async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          const accounts = await provider.listAccounts();
+          if (accounts.length > 0) {
+            signer = provider.getSigner();
+            userAddress = accounts[0];
+            
+            document.getElementById('walletStatus').textContent = `Connected: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+            document.getElementById('walletAddress').textContent = userAddress;
+            document.getElementById('walletSection').style.display = 'none';
+            document.getElementById('walletPanel').style.display = 'flex';
+            document.getElementById('statsGrid').style.display = 'grid';
+            
+            loadActivityData();
+          }
+        } catch (error) {
+          console.error('Error checking wallet connection:', error);
         }
-      }
-    }
-
-    // Update connect/disconnect button logic
-    function updateWalletButton() {
-      if (!connectBtn || !submitBtn) return;
-      if (userAddress) {
-        connectBtn.textContent = 'Disconnect Wallet';
-        connectBtn.disabled = false;
-        submitBtn.disabled = false;
-      } else {
-        connectBtn.textContent = 'Connect Wallet';
-        connectBtn.disabled = false;
-        submitBtn.disabled = true;
-      }
-    }
-
-    async function submitToLeaderboard() {
-      if (!signer || !userAddress) {
-        alert('Connect your wallet first.');
-        return;
-      }
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Submitting...';
-      try {
-        // Always use a new contract instance with signer for transactions
-        const contractWithSigner = new ethers.Contract(LEADERBOARD_CONTRACT_ADDRESS, LEADERBOARD_CONTRACT_ABI, signer);
-        const tx = await contractWithSigner.submitScore(
-          Math.floor(userStats.omegaBalance),
-          Math.floor(userStats.arcadeBalance),
-          userStats.transactions
-        );
-        await tx.wait();
-        alert('Submitted to leaderboard!');
-        await loadLeaderboard();
-      } catch (err) {
-        console.error('Submit failed:', err);
-        alert('Failed to submit: ' + (err && err.message ? err.message : err));
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Score';
-      }
-    }
-
-    // Clean up interval on page unload
-    window.addEventListener('beforeunload', function() {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
       }
     });
   </script>

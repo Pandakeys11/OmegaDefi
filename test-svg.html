@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG Logo Test</title>
+  <style>
+    body {
+      background: #0a0a0a;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    .test-container {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #333;
+      border-radius: 10px;
+    }
+    .logo-test {
+      margin: 10px;
+    }
+    .omega-logo {
+      width: 120px;
+      height: 120px;
+      filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.3));
+      transition: filter 0.3s ease;
+    }
+    .omega-logo svg {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>SVG Logo Test - Embedded Approach</h1>
+  
+  <div class="test-container">
+    <h2>Main Logo (Embedded SVG)</h2>
+    <div class="logo-test">
+      <div class="omega-logo">
+        <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#00ff88"/>
+              <stop offset="100%" style="stop-color:#00d4ff"/>
+            </linearGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle cx="60" cy="60" r="58" fill="url(#mainGradient)" opacity="0.1" stroke="url(#mainGradient)" stroke-width="2"/>
+          <path d="M25 35 C25 35, 35 35, 60 35 C85 35, 95 35, 95 35 L95 45 L85 45 L85 50 L95 50 L85 80 L60 80 L35 80 L25 50 L35 50 L35 45 L25 45 Z" 
+                fill="url(#mainGradient)" filter="url(#glow)"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  
+  <div class="test-container">
+    <h2>Title Icon (Embedded SVG)</h2>
+    <div class="logo-test">
+      <svg width="44" height="44" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00ff88"/>
+            <stop offset="100%" style="stop-color:#00d4ff"/>
+          </linearGradient>
+        </defs>
+        <path d="M7 9 C7 9, 9 9, 16 9 C23 9, 25 9, 25 9 L25 12 L21 12 L21 13 L25 13 L21 21 L16 21 L11 21 L7 13 L11 13 L11 12 L7 12 Z" 
+              fill="url(#titleGradient)"/>
+      </svg>
+    </div>
+  </div>
+  
+  <div class="test-container">
+    <h2>External SVG Files (for reference)</h2>
+    <div class="logo-test">
+      <img src="omega-logo.svg" alt="Omega Logo" width="120" height="120">
+    </div>
+    <div class="logo-test">
+      <img src="omega-icon.svg" alt="Omega Icon" width="32" height="32">
+    </div>
+  </div>
+  
+  <script>
+    // Test if external SVGs are loading
+    document.addEventListener('DOMContentLoaded', function() {
+      const images = document.querySelectorAll('img');
+      images.forEach((img, index) => {
+        img.onload = function() {
+          console.log(`External SVG ${index + 1} loaded successfully:`, img.src);
+        };
+        img.onerror = function() {
+          console.error(`External SVG ${index + 1} failed to load:`, img.src);
+          this.style.border = '2px solid red';
+          this.alt = 'FAILED TO LOAD: ' + this.src;
+        };
+      });
+      
+      console.log('Embedded SVGs should work without any loading issues');
+    });
+  </script>
+</body>
+</html> 
